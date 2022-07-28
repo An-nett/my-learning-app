@@ -1,17 +1,18 @@
 import { getByRole } from "@testing-library/react";
-import { unmountComponentAtNode, render } from "react-dom";
+import ReactDOM, { Root } from "react-dom/client";
 import { act } from "react-dom/test-utils";
 import { Header } from "./Header";
 
 let container: HTMLDivElement | null = null;
+let root: Root | null = null;
 
 beforeEach(() => {
   container = document.createElement("div");
-  document.body.appendChild(container);
+  root = ReactDOM.createRoot(container);
 });
 
 afterEach(() => {
-  unmountComponentAtNode(container!);
+  root?.unmount();
   container!.remove();
   container = null;
 });
@@ -19,13 +20,13 @@ afterEach(() => {
 describe("Header", () => {
   it("renders app name", () => {
     act(() => {
-      render(<Header />, container);
+      root!.render(<Header />);
     });
     expect(container).toContainHTML("My Learning App");
   });
   it("has login button", () => {
     act(() => {
-      render(<Header />, container);
+      root!.render(<Header />);
     });
     const button = getByRole(container as HTMLElement, "button");
     expect(button).not.toBeFalsy();
