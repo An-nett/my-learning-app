@@ -13,7 +13,7 @@ interface CardColumnProps
 
 export const CardColumn: FC<CardColumnProps> = ({ time, children }) => {
   return (
-    <Grid item xs={1}>
+    <Grid item xs={12} lg={4}>
       <ColumnTitleStyled time={time} variant="h2">
         {TimeTitles[time]}
       </ColumnTitleStyled>

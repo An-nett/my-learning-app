@@ -12,10 +12,9 @@ function App() {
       <Container sx={{ pt: 8 }} maxWidth={false}>
         <Grid
           container
-          columns={3}
           sx={{ margin: "auto", width: "80%" }}
-          gap={3.5}
-          flexWrap="nowrap"
+          gap={3}
+          // flexWrap="nowrap"
         >
           <CardColumn time={TimeVariants.past}>
             <CardMainPage
