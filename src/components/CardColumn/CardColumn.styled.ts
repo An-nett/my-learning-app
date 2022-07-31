@@ -10,7 +10,8 @@ export const CardTrackStyled = styled(Stack, {
   shouldForwardProp: (prop) => prop !== "time",
 })<CardTrackStyledProps>(({ theme, time }) => ({
   backgroundColor: alpha(getTimeStyle(time), 0.2),
-  minHeight: "70vh",
+  flexGrow: 1,
+  minHeight: "20vh",
   padding: theme.spacing(1),
   borderRadius: theme.spacing(1),
 }));

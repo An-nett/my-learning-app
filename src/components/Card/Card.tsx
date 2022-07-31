@@ -38,10 +38,30 @@ export const CardMainPage: FC<CardMainProps> = ({
             {title}
           </Link>
         }
-        sx={{ pt: 0.75 }}
+        action={
+          <Link
+            href="#"
+            underline="none"
+            variant="body2"
+            color={getTimeStyle(time, false)}
+            sx={(theme) => ({
+              [theme.breakpoints.up("md")]: { display: "none" },
+            })}
+          >
+            &gt;&gt;
+          </Link>
+        }
+        sx={(theme) => ({
+          pt: 0.75,
+          pb: 2,
+          [theme.breakpoints.down("lg")]: { pt: 0.25 },
+        })}
       ></CardHeader>
-      <CardContent sx={{ pt: 1, "&:last-child": { pb: 0 } }}>
-        <Stack spacing={3}>
+      <CardContent sx={{ pt: 0, "&:last-child": { pb: 0 } }}>
+        <Stack
+          spacing={2}
+          sx={(theme) => ({ [theme.breakpoints.down("md")]: { mb: 4 } })}
+        >
           <Typography>Priority: {PriorityTypesTitles[priority]}</Typography>
           <Typography>Date: {moment(date).format(mainDate)}</Typography>
           <Link
@@ -49,6 +69,9 @@ export const CardMainPage: FC<CardMainProps> = ({
             underline="always"
             variant="body2"
             color={getTimeStyle(time, false)}
+            sx={(theme) => ({
+              [theme.breakpoints.down("md")]: { display: "none" },
+            })}
           >
             Show more info &gt;&gt;
           </Link>

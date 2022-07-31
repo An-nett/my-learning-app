@@ -1,4 +1,4 @@
-import { Grid } from "@mui/material";
+import { Grid, Stack } from "@mui/material";
 import { FC } from "react";
 import { TimeTitles } from "../../types/types";
 import {
@@ -13,13 +13,15 @@ interface CardColumnProps
 
 export const CardColumn: FC<CardColumnProps> = ({ time, children }) => {
   return (
-    <Grid item xs={12} lg={4}>
-      <ColumnTitleStyled time={time} variant="h2">
-        {TimeTitles[time]}
-      </ColumnTitleStyled>
-      <CardTrackStyled time={time} spacing={2}>
-        {children}
-      </CardTrackStyled>
+    <Grid item xs={12} sm={6} md={4}>
+      <Stack sx={{ height: "100%" }}>
+        <ColumnTitleStyled time={time} variant="h2">
+          {TimeTitles[time]}
+        </ColumnTitleStyled>
+        <CardTrackStyled time={time} spacing={2}>
+          {children}
+        </CardTrackStyled>
+      </Stack>
     </Grid>
   );
 };
