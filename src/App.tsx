@@ -9,14 +9,8 @@ function App() {
   return (
     <ThemeProvider theme={theme}>
       <Header />
-      <Container sx={{ pt: 8 }} maxWidth={false}>
-        <Grid
-          container
-          columns={3}
-          sx={{ margin: "auto", width: "80%" }}
-          gap={3.5}
-          flexWrap="nowrap"
-        >
+      <Container sx={{ py: 8 }}>
+        <Grid container spacing={3} justifyContent="center">
           <CardColumn time={TimeVariants.past}>
             <CardMainPage
               title="Example Title"

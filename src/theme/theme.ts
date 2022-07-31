@@ -1,36 +1,47 @@
-import { createTheme } from "@mui/material";
+import { createTheme, responsiveFontSizes } from "@mui/material";
 
 declare module "@mui/material/styles" {
   interface Palette {}
 }
 
-const theme = createTheme({
+let theme = createTheme({
   typography: {
-    htmlFontSize: 10,
     h1: {
-      fontSize: "3.6rem",
+      fontSize: 36,
       lineHeight: 1.2,
     },
     h2: {
-      fontSize: "3.2rem",
+      fontSize: 32,
     },
     h3: {
-      fontSize: "3rem",
+      fontSize: 30,
     },
     body1: {
-      fontSize: "2.4rem",
+      fontSize: 24,
     },
     body2: {
-      fontSize: "2rem",
+      fontSize: 20,
     },
     button: {
-      fontSize: "2.4rem",
+      fontSize: 24,
       lineHeight: 1,
     },
     overline: {
-      fontSize: "4rem",
+      fontSize: 40,
+    },
+  },
+  spacing: (factor: number) => `${0.25 * factor}rem`,
+  breakpoints: {
+    values: {
+      xs: 0,
+      sm: 600,
+      md: 1100,
+      lg: 1200,
+      xl: 1400,
     },
   },
 });
+
+theme = responsiveFontSizes(theme);
 
 export default theme;
