@@ -24,6 +24,18 @@ function App() {
               date={Date.now()}
               priority={PriorityTypes.medium}
             />
+            <CardMainPage
+              title="Example Title"
+              time={TimeVariants.past}
+              date={Date.now()}
+              priority={PriorityTypes.medium}
+            />
+            <CardMainPage
+              title="Example Title"
+              time={TimeVariants.past}
+              date={Date.now()}
+              priority={PriorityTypes.medium}
+            />
           </CardColumn>
           <CardColumn time={TimeVariants.now}>
             <CardMainPage
