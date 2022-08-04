@@ -1,4 +1,4 @@
-import { IconButton, styled } from "@mui/material";
+import { Button, IconButton, styled } from "@mui/material";
 import { TimeVariants } from "../../types/types";
 import { getTimeStyle } from "../../utils/style";
 
@@ -19,5 +19,28 @@ export const ScrollButton = styled(IconButton, {
   "& svg": {
     transform: `rotate(${top ? "180" : "0"}deg)`,
     color: theme.palette.common.white,
+  },
+}));
+
+export const ActionButton = styled(IconButton)(({ theme }) => ({
+  borderRadius: theme.spacing(0.5),
+}));
+
+interface DoneButtonStyledProps {
+  isDone?: boolean;
+}
+
+export const DoneButton = styled(Button, {
+  shouldForwardProp: (prop) => prop !== "isDone",
+})<DoneButtonStyledProps>(({ theme, isDone = false }) => ({
+  backgroundColor: theme.palette[isDone ? "success" : "error"].main,
+  color: theme.palette.common.white,
+  flexShrink: 0,
+  minWidth: theme.spacing(isDone ? 22 : 31),
+  "&.MuiButton-root": {
+    fontSize: 20,
+  },
+  "& svg": {
+    height: theme.spacing(5),
   },
 }));
