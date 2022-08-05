@@ -1,12 +1,12 @@
-import { Box } from "@mui/material";
 import {
   fireEvent,
   getByRole,
+  getAllByRole,
   getByTestId,
   getByText,
   queryByText,
 } from "@testing-library/react";
-import ReactDOM, { createRoot, Root } from "react-dom/client";
+import { createRoot, Root } from "react-dom/client";
 import { act } from "react-dom/test-utils";
 import { SkillItem } from "./SkillItem";
 
@@ -84,7 +84,35 @@ describe("Skill Item", () => {
     act(() => {
       fireEvent.mouseEnter(button);
     });
-    const editButton = getByTestId(container!, "EditIcon");
-    expect(editButton).toBeInTheDocument();
+    getByTestId(container!, "EditIcon");
+  });
+
+  it("changes date and title input on edit", () => {
+    act(() => {
+      root?.render(<SkillItem title={exTitle} datePlan={exDate} />);
+    });
+    const button = getByRole(container!, "button");
+    let titleInput: HTMLInputElement | null | undefined;
+    let dateInput: HTMLInputElement | null | undefined;
+
+    act(() => {
+      fireEvent.click(button);
+    });
+    titleInput = container?.querySelector('input[type="text"]');
+    expect(titleInput).toBeInTheDocument();
+    dateInput = container?.querySelector('input[type="date"]');
+    expect(dateInput).toBeInTheDocument();
+
+    const newTitleValue = "New Example Step";
+    const newDateValue = "2000-08-21";
+    const buttonDone = getAllByRole(container!, "button")[0];
+    act(() => {
+      fireEvent.change(titleInput!, { target: { value: newTitleValue } });
+      fireEvent.change(dateInput!, { target: { value: newDateValue } });
+      fireEvent.click(buttonDone);
+    });
+
+    getByText(container!, newTitleValue);
+    getByText(container!, "21.08.2000");
   });
 });

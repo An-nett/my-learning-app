@@ -1,5 +1,5 @@
 import { Edit } from "@mui/icons-material";
-import { alpha, Stack, Typography } from "@mui/material";
+import { alpha, Button, Stack, Typography } from "@mui/material";
 import { FC } from "react";
 import { ActionButton } from "../components/Buttons/Buttons.styled";
 import { SkillItem } from "../components/SkillItem/SkillItem";
@@ -31,10 +31,18 @@ export const SkillPage: FC = () => {
           borderRadius: theme.spacing(1),
         })}
       >
-        <SkillItem title="Example title 1" datePlan="2022-05-06" isDone />
-        <SkillItem title="Example title 2" datePlan="2022-07-22" />
-        <SkillItem title="Example title 3" datePlan="2022-08-22" />
+        <SkillItem title="Example step 1" datePlan="2022-05-06" isDone />
+        <SkillItem title="Example step 2" datePlan="2022-07-22" />
+        <SkillItem title="Example step 3" datePlan="2022-08-22" />
       </Stack>
+      <Button
+        variant="outlined"
+        color="secondary"
+        size="large"
+        sx={{ alignSelf: "center" }}
+      >
+        Add new step
+      </Button>
     </Stack>
   );
 };

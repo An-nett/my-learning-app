@@ -32,13 +32,11 @@ describe("Card", () => {
       root?.render(<CardMainPage {...baseProps} />);
     });
     let card = getByText(container as HTMLElement, "Example");
-    expect(card).toBeInTheDocument();
 
     act(() => {
       root?.render(<CardMainPage {...baseProps} title="Another Example" />);
     });
     card = getByText(container as HTMLElement, "Another Example");
-    expect(card).toBeInTheDocument();
   });
 
   it("renders progress bar on process tasks", () => {

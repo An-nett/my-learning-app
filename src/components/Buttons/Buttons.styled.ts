@@ -36,9 +36,13 @@ export const DoneButton = styled(Button, {
   backgroundColor: theme.palette[isDone ? "success" : "error"].main,
   color: theme.palette.common.white,
   flexShrink: 0,
-  minWidth: theme.spacing(isDone ? 22 : 31),
+  minWidth: theme.spacing(isDone ? 20 : 26),
+  alignSelf: "center",
+  [theme.breakpoints.down("md")]: {
+    marginLeft: "auto",
+  },
   "&.MuiButton-root": {
-    fontSize: 20,
+    fontSize: 18,
   },
   "& svg": {
     height: theme.spacing(5),
