@@ -23,11 +23,12 @@ let theme = createTheme({
       fontSize: 20,
     },
     button: {
-      fontSize: 24,
+      fontSize: 20,
       lineHeight: 1,
     },
     overline: {
-      fontSize: 40,
+      fontSize: 30,
+      lineHeight: 1,
     },
   },
   spacing: (factor: number) => `${0.25 * factor}rem`,

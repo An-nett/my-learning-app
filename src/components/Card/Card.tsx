@@ -31,7 +31,7 @@ export const CardMainPage: FC<CardMainProps> = ({
   priority,
 }) => {
   return (
-    <Card sx={{ p: 3.25, pr: 6.5, position: "relative" }}>
+    <Card sx={{ p: 3.25, pr: 6.5, position: "relative", flexShrink: 0 }}>
       <CardHeader
         title={
           <Link href="#" variant="h3" underline="none" color="inherit">
