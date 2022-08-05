@@ -29,13 +29,6 @@ describe("Skill Item", () => {
   const exTitle = "Ex";
   const exDate = "2022-08-08";
 
-  it("renders title", () => {
-    act(() => {
-      root?.render(<SkillItem title={exTitle} datePlan={exDate} />);
-    });
-    const item = getByText(container as HTMLElement, exTitle);
-    expect(item).toBeInTheDocument();
-  });
   it("formats date and shows when not done", () => {
     const date = "1998-09-23";
     const formattedDate = "23.09.1998";
@@ -54,35 +47,34 @@ describe("Skill Item", () => {
     expect(item).toBeNull();
   });
 
-  it("renders right title on button", () => {
+  it("renders right title or icon on button", () => {
     let done: HTMLElement | null = null;
     let notDone: HTMLElement | null = null;
 
     act(() => {
       root?.render(<SkillItem title={exTitle} datePlan={exDate} isDone />);
     });
-    done = queryByText(container!, "done");
+    done = getByText(container!, "done");
     notDone = queryByText(container!, "not yet");
-    expect(done).toBeInTheDocument();
     expect(notDone).toBeNull();
 
     act(() => {
+      fireEvent.mouseEnter(done!);
+    });
+    getByTestId(container!, "EditIcon");
+    act(() => {
+      fireEvent.mouseLeave(done!);
+    });
+
+    act(() => {
       root?.render(<SkillItem title={exTitle} datePlan={exDate} />);
     });
     done = queryByText(container!, "done");
-    notDone = queryByText(container!, "not yet");
+    notDone = getByText(container!, "not yet");
     expect(done).toBeNull();
-    expect(notDone).toBeInTheDocument();
-  });
-
-  it("renders edit button on hover", () => {
-    act(() => {
-      root?.render(<SkillItem title={exTitle} datePlan={exDate} />);
-    });
-    const button = getByRole(container!, "button");
 
     act(() => {
-      fireEvent.mouseEnter(button);
+      fireEvent.mouseEnter(notDone!);
     });
     getByTestId(container!, "EditIcon");
   });
@@ -91,6 +83,7 @@ describe("Skill Item", () => {
     act(() => {
       root?.render(<SkillItem title={exTitle} datePlan={exDate} />);
     });
+    getByText(container as HTMLElement, exTitle);
     const button = getByRole(container!, "button");
     let titleInput: HTMLInputElement | null | undefined;
     let dateInput: HTMLInputElement | null | undefined;

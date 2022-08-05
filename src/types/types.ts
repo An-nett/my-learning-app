@@ -1,3 +1,9 @@
+export enum URL {
+  MAIN = "/",
+  SKILLS = "/skill",
+  SKILL = "/skill/:skillId",
+}
+
 export enum TimeVariants {
   past,
   now,

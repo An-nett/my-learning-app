@@ -9,24 +9,28 @@ export const MainPage: FC = () => {
     <Grid container spacing={3} justifyContent="center">
       <CardColumn time={TimeVariants.past}>
         <CardMainPage
+          id={1}
           title="Example Title"
           time={TimeVariants.past}
           date={Date.now()}
           priority={PriorityTypes.high}
         />
         <CardMainPage
+          id={2}
           title="Example Title"
           time={TimeVariants.past}
           date={Date.now()}
           priority={PriorityTypes.medium}
         />
         <CardMainPage
+          id={3}
           title="Example Title"
           time={TimeVariants.past}
           date={Date.now()}
           priority={PriorityTypes.medium}
         />
         <CardMainPage
+          id={4}
           title="Example Title"
           time={TimeVariants.past}
           date={Date.now()}
@@ -35,6 +39,7 @@ export const MainPage: FC = () => {
       </CardColumn>
       <CardColumn time={TimeVariants.now}>
         <CardMainPage
+          id={5}
           title="Example Title"
           time={TimeVariants.now}
           date={Date.now()}

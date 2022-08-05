@@ -65,7 +65,7 @@ export const SkillItem: FC<SkillItemProps> = ({
       py={2}
       sx={(theme) => ({
         backgroundColor: alpha(theme.palette.info.light, 0.3),
-        borderRadius: theme.spacing(1),
+        borderRadius: 1,
       })}
     >
       {editMode ? (
@@ -79,9 +79,9 @@ export const SkillItem: FC<SkillItemProps> = ({
           InputProps={{
             sx: (theme) => ({
               backgroundColor: theme.palette.common.white,
-              borderRadius: theme.spacing(1),
+              borderRadius: 1,
               "& .MuiOutlinedInput-input": {
-                padding: theme.spacing(0, 1),
+                p: theme.spacing(0, 1),
               },
             }),
           }}

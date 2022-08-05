@@ -45,6 +45,6 @@ export const DoneButton = styled(Button, {
     fontSize: 18,
   },
   "& svg": {
-    height: theme.spacing(5),
+    height: theme.spacing(4.5),
   },
 }));
