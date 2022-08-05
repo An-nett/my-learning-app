@@ -1,10 +1,20 @@
 import { Edit } from "@mui/icons-material";
-import { alpha, Button, Stack, Typography } from "@mui/material";
-import { FC } from "react";
+import { alpha, Button, Stack, TextField, Typography } from "@mui/material";
+import { FC, useCallback, useState } from "react";
 import { ActionButton } from "../components/Buttons/Buttons.styled";
 import { SkillItem } from "../components/SkillItem/SkillItem";
 
 export const SkillPage: FC = () => {
+  const [editMode, setEditMode] = useState(false);
+  const [title, setTitle] = useState("Skill Name");
+
+  const toggleEditMode = useCallback(() => {
+    setEditMode((prevMode) => !prevMode);
+  }, []);
+  const handleTitleChange = useCallback((e: React.BaseSyntheticEvent) => {
+    setTitle(e.target.value);
+  }, []);
+
   return (
     <Stack spacing={2}>
       <Stack
@@ -18,8 +28,19 @@ export const SkillPage: FC = () => {
           borderRadius: theme.spacing(1),
         })}
       >
-        <Typography variant="overline">Skill Name</Typography>
-        <ActionButton>
+        {editMode ? (
+          <TextField
+            autoFocus
+            value={title}
+            onChange={handleTitleChange}
+            variant="standard"
+            size="small"
+            color="secondary"
+          />
+        ) : (
+          <Typography variant="overline">{title}</Typography>
+        )}
+        <ActionButton onClick={toggleEditMode}>
           <Edit />
         </ActionButton>
       </Stack>
