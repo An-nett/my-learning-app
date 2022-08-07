@@ -17,7 +17,7 @@ import moment from "moment";
 import { FC } from "react";
 import { Link as RouterLink, useNavigate } from "react-router-dom";
 import { mainDate } from "../../types/date-format";
-import { PriorityTypes, SkillData, TimeVariants, URL } from "../../types/types";
+import { PriorityTypes, SkillData, TimeVariants } from "../../types/types";
 import { getTimeStyle } from "../../utils/style";
 import { ProgressBar } from "./ProgressBar/ProgressBar";
 
@@ -55,14 +55,14 @@ export const CardMainPage: FC<CardMainProps> = ({
             underline="none"
             color={getTimeStyle(time, false)}
             component={RouterLink}
-            to={`${URL.SKILLS}/${id}`}
+            to={`${time}/${id}`}
           >
             {title}
           </Link>
         }
         action={
           <IconButton
-            onClick={() => navigate(`${URL.SKILLS}/${id}`)}
+            onClick={() => navigate(`${time}/${id}`)}
             sx={(theme) => ({
               backgroundColor: getTimeStyle(time),
               borderRadius: 0.5,
@@ -103,7 +103,7 @@ export const CardMainPage: FC<CardMainProps> = ({
             color={getTimeStyle(time, false)}
             display={{ xs: "none", md: "inline-block" }}
             component={RouterLink}
-            to={`${URL.SKILLS}/${id}`}
+            to={`${time}/${id}`}
           >
             Show more info &gt;&gt;
           </Link>

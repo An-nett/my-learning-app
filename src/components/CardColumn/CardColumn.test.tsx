@@ -1,34 +1,30 @@
 import { Box } from "@mui/material";
-import ReactDOM, { createRoot, Root } from "react-dom/client";
-import { act } from "react-dom/test-utils";
+import { JSXElementConstructor, ReactElement } from "react";
 import { TimeTitles, TimeVariants } from "../../types/types";
+import { renderWithProviders } from "../../utils/test-utils";
 import { CardColumn } from "./CardColumn";
-
-let container: HTMLDivElement | null = null;
-
-beforeEach(() => {
-  container = document.createElement("div");
-  document.body.appendChild(container);
-});
-
-afterEach(() => {
-  document.body.removeChild(container as HTMLDivElement);
-  container = null;
-});
 
 describe("Card Column", () => {
   it("renders name depending on time and children", () => {
-    const root = createRoot(container as HTMLDivElement);
+    let rerender: (
+      ui: ReactElement<any, string | JSXElementConstructor<any>>
+    ) => void;
+    let container: Element | null = null;
 
     Object.values(TimeVariants).forEach((value) => {
-      if (typeof value === "string") return;
-      act(() => {
-        root.render(
+      if (rerender) {
+        rerender(
           <CardColumn time={value}>
             <Box id="example" />
           </CardColumn>
         );
-      });
+      } else {
+        ({ rerender, container } = renderWithProviders(
+          <CardColumn time={value}>
+            <Box id="example" />
+          </CardColumn>
+        ));
+      }
       expect(container).toContainHTML(TimeTitles[value]);
     });
 

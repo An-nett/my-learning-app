@@ -1,16 +1,24 @@
-import { ArrowBack, Edit } from "@mui/icons-material";
+import { ArrowBack, Delete, Done, Edit } from "@mui/icons-material";
 import { alpha, IconButton, Stack, TextField, Typography } from "@mui/material";
 import { FC, useCallback, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAppDispatch } from "../../redux/hooks";
+import { actions } from "../../redux/slices/skills";
+import { TimeVariants, URL } from "../../types/types";
 import { ActionButton } from "../Buttons/Buttons.styled";
 
 export const DEFAULT_TITLE = "Enter skill name..";
 
-export const SkillTitle: FC<{ title?: string }> = ({ title }) => {
+export const SkillTitle: FC<{
+  time: TimeVariants;
+  id: string;
+  title?: string;
+}> = ({ time, id, title }) => {
   const [editMode, setEditMode] = useState(!title);
   const [inputTitle, setInputTitle] = useState(title ?? DEFAULT_TITLE);
 
   const navigate = useNavigate();
+  const dispatch = useAppDispatch();
 
   const toggleEditMode = useCallback(() => {
     setEditMode((prevMode) => !prevMode);
@@ -18,6 +26,11 @@ export const SkillTitle: FC<{ title?: string }> = ({ title }) => {
   const handleTitleChange = useCallback((e: React.BaseSyntheticEvent) => {
     setInputTitle(e.target.value);
   }, []);
+
+  const handleDeleteSkill = useCallback(() => {
+    dispatch(actions.removeSkill({ time, id: Number(id) }));
+    navigate(URL.MAIN);
+  }, [dispatch, time, id, navigate]);
 
   return (
     <Stack
@@ -54,8 +67,11 @@ export const SkillTitle: FC<{ title?: string }> = ({ title }) => {
         </Typography>
       )}
       <ActionButton onClick={toggleEditMode}>
-        <Edit />
+        {editMode ? <Done /> : <Edit />}
       </ActionButton>
+      <IconButton color="error" onClick={handleDeleteSkill}>
+        <Delete />
+      </IconButton>
     </Stack>
   );
 };

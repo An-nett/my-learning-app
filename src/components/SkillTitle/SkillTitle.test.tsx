@@ -1,68 +1,49 @@
-import {
-  fireEvent,
-  getByRole,
-  getAllByRole,
-  getByText,
-  queryByTestId,
-  queryByText,
-} from "@testing-library/react";
-import { createRoot, Root } from "react-dom/client";
+import { fireEvent, queryByTestId } from "@testing-library/react";
+import { MemoryRouter } from "react-router-dom";
 import { act } from "react-dom/test-utils";
-import { BrowserRouter } from "react-router-dom";
+import { TimeVariants } from "../../types/types";
+import { initialData, renderWithProviders } from "../../utils/test-utils";
 import { DEFAULT_TITLE, SkillTitle } from "./SkillTitle";
 
-let container: HTMLDivElement | null = null;
-let root: Root | null = null;
-
-beforeEach(() => {
-  container = document.createElement("div");
-  document.body.appendChild(container);
-  root = createRoot(container as HTMLDivElement);
-});
-
-afterEach(() => {
-  document.body.removeChild(container as HTMLDivElement);
-  container = null;
-  root = null;
-});
+const TEST_TIME = TimeVariants.now;
+const TEST_ID = 3;
 
 describe("Skill Title", () => {
-  it("renders default title in create mode", () => {
-    act(() => {
-      root?.render(
-        <BrowserRouter>
-          <SkillTitle />
-        </BrowserRouter>
-      );
-    });
+  const { title, id, time } = initialData[TEST_TIME].find(
+    (skill) => skill.id === TEST_ID
+  )!;
+  const baseProps = { title, id: String(id), time };
 
-    getByRole(container!, "textbox");
-    const buttons = getAllByRole(container!, "button");
+  it("renders default title in create mode", () => {
+    const { getByRole, getAllByRole, getByText } = renderWithProviders(
+      <MemoryRouter initialEntries={[`/${TEST_TIME}/${TEST_ID}`]}>
+        <SkillTitle {...baseProps} title={undefined} />
+      </MemoryRouter>
+    );
+
+    getByRole("textbox");
+    const buttons = getAllByRole("button");
     const editButton = buttons.find((button) =>
-      queryByTestId(button, "EditIcon")
+      queryByTestId(button, "DoneIcon")
     );
 
     act(() => {
       fireEvent.click(editButton!);
     });
 
-    getByText(container!, DEFAULT_TITLE);
+    getByText(DEFAULT_TITLE);
   });
 
   it("renders right title and changes it on edit", () => {
-    const firstTitle = "Skill Name";
     const changedTitle = "New Skill Name";
+    const { getByRole, getByText, getAllByRole } = renderWithProviders(
+      <MemoryRouter initialEntries={[`/${TEST_TIME}/${TEST_ID}`]}>
+        <SkillTitle {...baseProps} />
+      </MemoryRouter>
+    );
 
-    act(() => {
-      root?.render(
-        <BrowserRouter>
-          <SkillTitle title={firstTitle} />
-        </BrowserRouter>
-      );
-    });
-
-    getByText(container!, firstTitle);
-    const buttons = getAllByRole(container!, "button");
+    getByText(title);
+    const buttons = getAllByRole("button");
     const editButton = buttons.find((button) =>
       queryByTestId(button, "EditIcon")
     );
@@ -71,15 +52,18 @@ describe("Skill Title", () => {
       fireEvent.click(editButton!);
     });
 
-    const input = getByRole(container!, "textbox");
+    const input = getByRole("textbox");
+    const doneButton = buttons.find((button) =>
+      queryByTestId(button, "DoneIcon")
+    );
 
     act(() => {
       fireEvent.change(input, {
         target: { value: changedTitle },
       });
-      fireEvent.click(editButton!);
+      fireEvent.click(doneButton!);
     });
 
-    getByText(container!, changedTitle);
+    getByText(changedTitle);
   });
 });

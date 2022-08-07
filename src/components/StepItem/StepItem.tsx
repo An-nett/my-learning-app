@@ -1,7 +1,8 @@
-import { Edit } from "@mui/icons-material";
+import { Delete, Edit } from "@mui/icons-material";
 import {
   alpha,
   ButtonGroup,
+  IconButton,
   ListItem,
   Stack,
   TextField,
@@ -9,27 +10,34 @@ import {
 } from "@mui/material";
 import moment from "moment";
 import { FC, useCallback, useState } from "react";
+import { useParams } from "react-router-dom";
+import { useAppDispatch } from "../../redux/hooks";
+import { actions } from "../../redux/slices/skills";
 import { mainDate } from "../../types/date-format";
+import { StepData, TimeVariants } from "../../types/types";
 import { DoneButton } from "../Buttons/Buttons.styled";
 
 // TODO Пока пропсы не меняются, т.к. нет связи с редаксом, после создания дописать тесты
 
-interface SkillItemProps {
-  title: string;
-  datePlan: string;
-  isDone?: boolean;
-}
+interface StepItemProps extends StepData {}
 
-export const SkillItem: FC<SkillItemProps> = ({
+export const StepItem: FC<StepItemProps> = ({
+  id,
   title,
-  datePlan,
+  date,
   isDone = false,
 }) => {
   const [hover, setHover] = useState(false);
-  const [editMode, setEditMode] = useState(false);
+  const [editMode, setEditMode] = useState(!title && !date);
 
   const [inputTitle, setTitle] = useState(title);
-  const [date, setDate] = useState(datePlan);
+  const [datePlan, setDate] = useState(date);
+
+  const dispatch = useAppDispatch();
+  const { time, skillId } = useParams() as {
+    time: TimeVariants;
+    skillId: string;
+  };
 
   const toggleEditMode = useCallback(() => {
     setEditMode((prevMode) => !prevMode);
@@ -57,6 +65,10 @@ export const SkillItem: FC<SkillItemProps> = ({
     setDate(e.target.value);
   }, []);
 
+  const handleDeleteStep = useCallback(() => {
+    dispatch(actions.removeStep({ time, id: Number(skillId), stepId: id }));
+  }, [dispatch, time, skillId, id]);
+
   return (
     <ListItem sx={{ p: 0, "&:not(:last-child)": { mb: 2 } }}>
       <Stack
@@ -75,6 +87,7 @@ export const SkillItem: FC<SkillItemProps> = ({
           <TextField
             variant="outlined"
             value={inputTitle}
+            placeholder="Please enter step name..."
             onChange={handleTitleChange}
             autoFocus
             size="small"
@@ -97,7 +110,7 @@ export const SkillItem: FC<SkillItemProps> = ({
             <TextField
               variant="standard"
               size="small"
-              value={date}
+              value={datePlan}
               onChange={handleDateChange}
               InputProps={{
                 type: "date",
@@ -107,12 +120,12 @@ export const SkillItem: FC<SkillItemProps> = ({
           ) : !isDone ? (
             <Typography
               sx={(theme) => ({
-                color: moment(date).isAfter()
+                color: moment(datePlan).isAfter()
                   ? "initial"
                   : theme.palette.warning.dark,
               })}
             >
-              {moment(date).format(mainDate)}
+              {moment(datePlan).format(mainDate)}
             </Typography>
           ) : null}
           {editMode ? (
@@ -132,6 +145,9 @@ export const SkillItem: FC<SkillItemProps> = ({
               {hover || editMode ? <Edit /> : isDone ? "done" : "not yet"}
             </DoneButton>
           )}
+          <IconButton color="error" onClick={handleDeleteStep}>
+            <Delete />
+          </IconButton>
         </Stack>
       </Stack>
     </ListItem>

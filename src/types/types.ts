@@ -1,13 +1,13 @@
 export enum URL {
   MAIN = "/",
-  SKILLS = "/skill",
-  SKILL = "/skill/:skillId",
+  SKILLS = "/:time",
+  SKILL = "/:time/:skillId",
 }
 
 export enum TimeVariants {
-  past,
-  now,
-  future,
+  past = "past",
+  now = "now",
+  future = "future",
 }
 
 export const TimeTitles: Record<TimeVariants, string> = {
@@ -23,7 +23,10 @@ export enum PriorityTypes {
 }
 
 export interface StepData {
-  isDone: boolean;
+  id: number;
+  isDone?: boolean;
+  title?: string;
+  date?: string | number;
 }
 
 export interface SkillData {

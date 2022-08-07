@@ -11,7 +11,7 @@ function App() {
   return (
     <ThemeProvider theme={theme}>
       <Header />
-      <Container sx={{ py: 8 }}>
+      <Container sx={{ py: 8 }} maxWidth={false}>
         <Routes>
           <Route path={URL.MAIN} element={<MainPage />} />
           <Route path={URL.SKILL} element={<SkillPage />} />

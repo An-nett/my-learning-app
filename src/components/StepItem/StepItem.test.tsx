@@ -1,49 +1,30 @@
-import {
-  fireEvent,
-  getByRole,
-  getAllByRole,
-  getByTestId,
-  getByText,
-  queryByText,
-} from "@testing-library/react";
-import { createRoot, Root } from "react-dom/client";
+import { fireEvent } from "@testing-library/react";
+import moment from "moment";
 import { act } from "react-dom/test-utils";
-import { SkillItem } from "./StepItem";
+import { mainDate } from "../../types/date-format";
+import { TimeVariants } from "../../types/types";
+import { initialData, renderWithProviders } from "../../utils/test-utils";
+import { StepItem } from "./StepItem";
 
-let container: HTMLDivElement | null = null;
-let root: Root | null = null;
+const TEST_TIME = TimeVariants.now;
+const TEST_ID = 3;
 
-beforeEach(() => {
-  container = document.createElement("div");
-  document.body.appendChild(container);
-  root = createRoot(container as HTMLDivElement);
-});
-
-afterEach(() => {
-  document.body.removeChild(container as HTMLDivElement);
-  container = null;
-  root = null;
-});
-
-describe("Skill Item", () => {
-  const exTitle = "Ex";
-  const exDate = "2022-08-08";
+describe("Step Item", () => {
+  const getExProps = (id: number) =>
+    initialData[TEST_TIME].find((skill) => skill.id === TEST_ID)?.steps?.find(
+      (step) => step.id === id
+    )!;
 
   it("formats date and shows when not done", () => {
-    const date = "1998-09-23";
-    const formattedDate = "23.09.1998";
     let item: HTMLElement | null = null;
 
-    act(() => {
-      root?.render(<SkillItem title={exTitle} datePlan={date} />);
-    });
-    item = getByText(container!, formattedDate);
-    expect(item).toBeInTheDocument();
+    const { getByText, queryByText, rerender } = renderWithProviders(
+      <StepItem {...getExProps(3.2)} />
+    );
+    item = getByText(moment(getExProps(3.2).date).format(mainDate));
 
-    act(() => {
-      root?.render(<SkillItem title={exTitle} datePlan={date} isDone />);
-    });
-    item = queryByText(container!, formattedDate);
+    rerender(<StepItem {...getExProps(3.1)} />);
+    item = queryByText(moment(getExProps(3.1).date).format(mainDate));
     expect(item).toBeNull();
   });
 
@@ -51,42 +32,41 @@ describe("Skill Item", () => {
     let done: HTMLElement | null = null;
     let notDone: HTMLElement | null = null;
 
-    act(() => {
-      root?.render(<SkillItem title={exTitle} datePlan={exDate} isDone />);
-    });
-    done = getByText(container!, "done");
-    notDone = queryByText(container!, "not yet");
+    let { getByText, queryByText, getByTestId, rerender } = renderWithProviders(
+      <StepItem {...getExProps(3.1)} />
+    );
+    done = getByText(/done/i);
+    notDone = queryByText(/not yet/i);
     expect(notDone).toBeNull();
 
     act(() => {
       fireEvent.mouseEnter(done!);
     });
-    getByTestId(container!, "EditIcon");
+    getByTestId("EditIcon");
     act(() => {
       fireEvent.mouseLeave(done!);
     });
 
-    act(() => {
-      root?.render(<SkillItem title={exTitle} datePlan={exDate} />);
-    });
-    done = queryByText(container!, "done");
-    notDone = getByText(container!, "not yet");
+    rerender(<StepItem {...getExProps(3.2)} />);
+    done = queryByText(/done/i);
+    notDone = getByText(/not yet/i);
     expect(done).toBeNull();
 
     act(() => {
       fireEvent.mouseEnter(notDone!);
     });
-    getByTestId(container!, "EditIcon");
+    getByTestId("EditIcon");
   });
 
   it("changes date and title input on edit", () => {
-    act(() => {
-      root?.render(<SkillItem title={exTitle} datePlan={exDate} />);
-    });
-    getByText(container as HTMLElement, exTitle);
-    const button = getByRole(container!, "button");
-    let titleInput: HTMLInputElement | null | undefined;
-    let dateInput: HTMLInputElement | null | undefined;
+    let { getByText, getAllByRole, container } = renderWithProviders(
+      <StepItem {...getExProps(3.2)} />
+    );
+    getByText(getExProps(3.2).title!);
+
+    const button = getAllByRole("button")[0];
+    let titleInput: Element | null | undefined;
+    let dateInput: Element | null | undefined;
 
     act(() => {
       fireEvent.click(button);
@@ -98,14 +78,14 @@ describe("Skill Item", () => {
 
     const newTitleValue = "New Example Step";
     const newDateValue = "2000-08-21";
-    const buttonDone = getAllByRole(container!, "button")[0];
+    const buttonDone = getAllByRole("button")[0];
     act(() => {
       fireEvent.change(titleInput!, { target: { value: newTitleValue } });
       fireEvent.change(dateInput!, { target: { value: newDateValue } });
       fireEvent.click(buttonDone);
     });
 
-    getByText(container!, newTitleValue);
-    getByText(container!, "21.08.2000");
+    getByText(newTitleValue);
+    getByText(moment(newDateValue).format(mainDate));
   });
 });
