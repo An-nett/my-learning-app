@@ -17,17 +17,11 @@ import moment from "moment";
 import { FC } from "react";
 import { Link as RouterLink, useNavigate } from "react-router-dom";
 import { mainDate } from "../../types/date-format";
-import { PriorityTypes, TimeVariants, URL } from "../../types/types";
+import { PriorityTypes, SkillData, TimeVariants, URL } from "../../types/types";
 import { getTimeStyle } from "../../utils/style";
 import { ProgressBar } from "./ProgressBar/ProgressBar";
 
-interface CardMainProps {
-  id: string | number;
-  title: string;
-  time: TimeVariants;
-  date: Date | number | string;
-  priority: PriorityTypes;
-}
+interface CardMainProps extends SkillData {}
 
 const PriorityIcon: FC<{ priority: PriorityTypes }> = ({ priority }) => {
   if (priority === PriorityTypes.high) {
@@ -45,8 +39,12 @@ export const CardMainPage: FC<CardMainProps> = ({
   time,
   date,
   priority,
+  steps,
 }) => {
   const navigate = useNavigate();
+
+  const value = steps.filter((step) => step.isDone).length;
+  const total = steps.length;
 
   return (
     <Card sx={{ p: { xs: 2, sm: 3 }, position: "relative", flexShrink: 0 }}>
@@ -110,7 +108,9 @@ export const CardMainPage: FC<CardMainProps> = ({
             Show more info &gt;&gt;
           </Link>
         </Stack>
-        {time === TimeVariants.now && <ProgressBar total={100} value={10} />}
+        {time === TimeVariants.now && (
+          <ProgressBar total={total} value={value} />
+        )}
       </CardContent>
     </Card>
   );

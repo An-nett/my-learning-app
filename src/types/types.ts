@@ -22,8 +22,15 @@ export enum PriorityTypes {
   high,
 }
 
-export const PriorityTypesTitles: Record<PriorityTypes, string> = {
-  [PriorityTypes.low]: "Low",
-  [PriorityTypes.medium]: "Medium",
-  [PriorityTypes.high]: "High",
-};
+export interface StepData {
+  isDone: boolean;
+}
+
+export interface SkillData {
+  id: string | number;
+  title: string;
+  date: string | number;
+  time: TimeVariants;
+  priority: PriorityTypes;
+  steps: StepData[];
+}

@@ -4,9 +4,11 @@ import { FC, useCallback, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ActionButton } from "../Buttons/Buttons.styled";
 
-export const SkillTitle: FC = () => {
-  const [editMode, setEditMode] = useState(false);
-  const [title, setTitle] = useState("Skill Name");
+export const DEFAULT_TITLE = "Enter skill name..";
+
+export const SkillTitle: FC<{ title?: string }> = ({ title }) => {
+  const [editMode, setEditMode] = useState(!title);
+  const [inputTitle, setInputTitle] = useState(title ?? DEFAULT_TITLE);
 
   const navigate = useNavigate();
 
@@ -14,7 +16,7 @@ export const SkillTitle: FC = () => {
     setEditMode((prevMode) => !prevMode);
   }, []);
   const handleTitleChange = useCallback((e: React.BaseSyntheticEvent) => {
-    setTitle(e.target.value);
+    setInputTitle(e.target.value);
   }, []);
 
   return (
@@ -39,7 +41,7 @@ export const SkillTitle: FC = () => {
       {editMode ? (
         <TextField
           autoFocus
-          value={title}
+          value={inputTitle}
           onChange={handleTitleChange}
           variant="standard"
           size="small"
@@ -48,7 +50,7 @@ export const SkillTitle: FC = () => {
         />
       ) : (
         <Typography variant="overline" flexGrow={1}>
-          {title}
+          {inputTitle}
         </Typography>
       )}
       <ActionButton onClick={toggleEditMode}>

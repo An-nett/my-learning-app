@@ -8,7 +8,7 @@ import {
 } from "@testing-library/react";
 import { createRoot, Root } from "react-dom/client";
 import { act } from "react-dom/test-utils";
-import { SkillItem } from "./SkillItem";
+import { SkillItem } from "./StepItem";
 
 let container: HTMLDivElement | null = null;
 let root: Root | null = null;

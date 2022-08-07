@@ -27,6 +27,7 @@ describe("Card", () => {
     date: Date.now(),
     priority: PriorityTypes.high,
     time: TimeVariants.past,
+    steps: [],
   };
 
   it("renders card with given title", () => {
