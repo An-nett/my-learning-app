@@ -1,38 +1,88 @@
 import { Box } from "@mui/material";
-import ReactDOM, { createRoot, Root } from "react-dom/client";
+import { fireEvent } from "@testing-library/react";
+import { JSXElementConstructor, ReactElement } from "react";
 import { act } from "react-dom/test-utils";
-import { TimeTitles, TimeVariants } from "../../types/types";
+import { MemoryRouter, Route, Routes } from "react-router-dom";
+import { TimeTitles, TimeVariants, URL } from "../../types/types";
+import { renderWithProviders } from "../../utils/test-utils";
 import { CardColumn } from "./CardColumn";
-
-let container: HTMLDivElement | null = null;
-
-beforeEach(() => {
-  container = document.createElement("div");
-  document.body.appendChild(container);
-});
-
-afterEach(() => {
-  document.body.removeChild(container as HTMLDivElement);
-  container = null;
-});
 
 describe("Card Column", () => {
   it("renders name depending on time and children", () => {
-    const root = createRoot(container as HTMLDivElement);
+    let rerender: (
+      ui: ReactElement<any, string | JSXElementConstructor<any>>
+    ) => void;
+    let container: Element | null = null;
 
     Object.values(TimeVariants).forEach((value) => {
-      if (typeof value === "string") return;
-      act(() => {
-        root.render(
-          <CardColumn time={value}>
-            <Box id="example" />
-          </CardColumn>
+      if (rerender) {
+        rerender(
+          <MemoryRouter initialEntries={[URL.MAIN]}>
+            <Routes>
+              <Route
+                path={URL.MAIN}
+                element={
+                  <CardColumn time={value}>
+                    <Box id="example" />
+                  </CardColumn>
+                }
+              />
+            </Routes>
+          </MemoryRouter>
         );
-      });
+      } else {
+        ({ rerender, container } = renderWithProviders(
+          <MemoryRouter initialEntries={[URL.MAIN]}>
+            <Routes>
+              <Route
+                path={URL.MAIN}
+                element={
+                  <CardColumn time={value}>
+                    <Box id="example" />
+                  </CardColumn>
+                }
+              />
+            </Routes>
+          </MemoryRouter>
+        ));
+      }
       expect(container).toContainHTML(TimeTitles[value]);
     });
 
     const el = document.getElementById("example");
     expect(container).toContainElement(el);
+  });
+
+  it("redirects to skill page when adding new skill", () => {
+    const { queryByRole, getByRole, getByText, container } =
+      renderWithProviders(
+        <MemoryRouter initialEntries={[URL.MAIN]}>
+          <Routes>
+            <Route
+              path={URL.MAIN}
+              element={
+                <CardColumn time={TimeVariants.now}>
+                  <Box id="example" />
+                </CardColumn>
+              }
+            />
+            <Route path={URL.SKILL} element={<p>New skill</p>} />
+          </Routes>
+        </MemoryRouter>
+      );
+
+    let addButton = queryByRole("button");
+    expect(addButton).toBeNull();
+
+    act(() => {
+      fireEvent.mouseEnter(container.querySelector(".MuiGrid-item")!);
+    });
+
+    addButton = getByRole("button");
+    act(() => {
+      fireEvent.click(addButton!);
+    });
+
+    getByText(/New skill/i);
   });
 });

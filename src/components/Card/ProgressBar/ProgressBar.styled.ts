@@ -44,11 +44,11 @@ export const ProgressBarFill = styled(Box, {
 
 const getGradient = (theme: Theme, percent: number, direction = "top") => {
   if (percent <= 10) return theme.palette.error.main;
-  if (percent <= 30)
+  if (percent <= 35)
     return `linear-gradient(to ${direction}, ${theme.palette.error.main} 0%, ${
       theme.palette.warning.light
     } ${(10 * 100) / percent}%)`;
-  if (percent <= 50)
+  if (percent <= 70)
     return `linear-gradient(to ${direction}, ${theme.palette.error.main} 0%, ${
       theme.palette.warning.light
     } ${(10 * 100) / percent}%, ${theme.palette.success.light} 100%)`;

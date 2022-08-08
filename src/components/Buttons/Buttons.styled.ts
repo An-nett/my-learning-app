@@ -2,14 +2,14 @@ import { Button, IconButton, styled } from "@mui/material";
 import { TimeVariants } from "../../types/types";
 import { getTimeStyle } from "../../utils/style";
 
-interface ScrollButtonProps {
+interface ButtonProps {
   time: TimeVariants;
   top?: boolean;
 }
 
 export const ScrollButton = styled(IconButton, {
   shouldForwardProp: (prop) => prop !== "time" && prop !== "top",
-})<ScrollButtonProps>(({ theme, time, top = false }) => ({
+})<ButtonProps>(({ theme, time, top = false }) => ({
   backgroundColor: getTimeStyle(time),
   position: "absolute",
   borderRadius: theme.spacing(0.5),
@@ -45,6 +45,20 @@ export const DoneButton = styled(Button, {
     fontSize: 18,
   },
   "& svg": {
-    height: theme.spacing(5),
+    height: theme.spacing(4.5),
+  },
+}));
+
+export const AddButton = styled(IconButton)<ButtonProps>(({ theme, time }) => ({
+  position: "absolute",
+  right: "15%",
+  top: "40%",
+  transform: "translateY(-50%)",
+  backgroundColor: getTimeStyle(time),
+  borderRadius: theme.spacing(0.5),
+  color: theme.palette.common.white,
+  padding: 0,
+  "&:hover": {
+    color: getTimeStyle(time, false),
   },
 }));

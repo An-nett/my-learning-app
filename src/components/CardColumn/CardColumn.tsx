@@ -1,6 +1,11 @@
+import { Add } from "@mui/icons-material";
 import { Grid, Stack } from "@mui/material";
 import { FC, useCallback, useEffect, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAppDispatch } from "../../redux/hooks";
+import { actions } from "../../redux/slices/skills";
 import { TimeTitles } from "../../types/types";
+import { AddButton } from "../Buttons/Buttons.styled";
 import {
   BackgroundTrackStyled,
   CardTrackStyled,
@@ -15,7 +20,11 @@ interface CardColumnProps
 
 export const CardColumn: FC<CardColumnProps> = ({ time, children }) => {
   const [maskType, setMaskType] = useState<TMaskType>();
+  const [hover, setHover] = useState(false);
+
   const ref = useRef<HTMLDivElement>(null);
+  const dispatch = useAppDispatch();
+  const navigate = useNavigate();
 
   const handleScroll = useCallback(() => {
     if (ref.current) {
@@ -56,12 +65,35 @@ export const CardColumn: FC<CardColumnProps> = ({ time, children }) => {
     };
   }, [handleScroll]);
 
+  const handleMouseEnter = useCallback(() => setHover(true), []);
+  const handleMouseLeave = useCallback(() => setHover(false), []);
+
+  const handleAddSkill = useCallback(() => {
+    const id = +Math.random().toFixed(3);
+    dispatch(actions.addSkill({ time, id }));
+    navigate(`/${time}/${id}`);
+  }, [dispatch, navigate, time]);
+
   return (
-    <Grid item xs={12} sm={6} md={4}>
+    <Grid
+      item
+      xs={12}
+      sm={6}
+      md={4}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+    >
       <Stack sx={{ height: "100%", position: "relative" }}>
-        <ColumnTitleStyled time={time} variant="h2">
-          {TimeTitles[time]}
-        </ColumnTitleStyled>
+        <Stack direction="row" spacing={2} position="relative">
+          <ColumnTitleStyled time={time} variant="h2">
+            {TimeTitles[time]}
+          </ColumnTitleStyled>
+          {hover && (
+            <AddButton time={time} onClick={handleAddSkill}>
+              <Add />
+            </AddButton>
+          )}
+        </Stack>
         <BackgroundTrackStyled time={time}>
           <CardTrackStyled
             time={time}

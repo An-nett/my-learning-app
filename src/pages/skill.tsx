@@ -1,66 +1,79 @@
-import { Edit } from "@mui/icons-material";
-import { alpha, Button, Stack, TextField, Typography } from "@mui/material";
-import { FC, useCallback, useState } from "react";
-import { ActionButton } from "../components/Buttons/Buttons.styled";
-import { SkillItem } from "../components/SkillItem/SkillItem";
+import { Button, List, Stack, Typography } from "@mui/material";
+import { FC, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
+import { StepItem } from "../components/StepItem/StepItem";
+import { SkillTitle } from "../components/SkillTitle/SkillTitle";
+import { useParams } from "react-router-dom";
+import { useAppDispatch, useAppSelector } from "../redux/hooks";
+import { TimeVariants, URL } from "../types/types";
+import { actions } from "../redux/slices/skills";
 
 export const SkillPage: FC = () => {
-  const [editMode, setEditMode] = useState(false);
-  const [title, setTitle] = useState("Skill Name");
+  const { time, skillId } = useParams() as {
+    time: TimeVariants;
+    skillId: string;
+  };
+  const dispatch = useAppDispatch();
+  const navigate = useNavigate();
 
-  const toggleEditMode = useCallback(() => {
-    setEditMode((prevMode) => !prevMode);
-  }, []);
-  const handleTitleChange = useCallback((e: React.BaseSyntheticEvent) => {
-    setTitle(e.target.value);
-  }, []);
+  const skillData = useAppSelector((state) =>
+    state.skills[time]?.find((it) => it.id === Number(skillId))
+  );
+
+  const onAddNewStep = useCallback(() => {
+    dispatch(actions.addStep({ time, id: Number(skillId) }));
+  }, [dispatch, time, skillId]);
+
+  if (!skillData)
+    return (
+      <Stack spacing={10}>
+        <Typography variant="h1" component="p" textAlign="center">
+          Sorry, the skill with given id was not found...
+        </Typography>
+        <Button
+          variant="outlined"
+          color="info"
+          size="large"
+          sx={{ alignSelf: "center" }}
+          onClick={() => navigate(URL.MAIN)}
+        >
+          Go to main page
+        </Button>
+      </Stack>
+    );
 
   return (
     <Stack spacing={2}>
-      <Stack
-        direction="row"
-        justifyContent="space-between"
-        alignItems="center"
-        px={3}
-        py={2}
-        sx={(theme) => ({
-          backgroundColor: alpha(theme.palette.secondary.light, 0.5),
-          borderRadius: theme.spacing(1),
-        })}
-      >
-        {editMode ? (
-          <TextField
-            autoFocus
-            value={title}
-            onChange={handleTitleChange}
-            variant="standard"
-            size="small"
-            color="secondary"
-          />
-        ) : (
-          <Typography variant="overline">{title}</Typography>
-        )}
-        <ActionButton onClick={toggleEditMode}>
-          <Edit />
-        </ActionButton>
-      </Stack>
-      <Stack
-        spacing={3}
-        p={3}
+      <SkillTitle time={time} id={skillId} title={skillData.title} />
+      <List
         sx={(theme) => ({
           border: `2px solid ${theme.palette.info.light}`,
           borderRadius: theme.spacing(1),
+          p: 3,
         })}
       >
-        <SkillItem title="Example step 1" datePlan="2022-05-06" isDone />
-        <SkillItem title="Example step 2" datePlan="2022-07-22" />
-        <SkillItem title="Example step 3" datePlan="2022-08-22" />
-      </Stack>
+        {!skillData.steps.length ? (
+          <Typography>
+            There are no steps yet. Please add some learning steps!
+          </Typography>
+        ) : (
+          skillData.steps.map((step) => (
+            <StepItem
+              id={step.id}
+              key={step.title}
+              title={step.title}
+              date={step.date}
+              isDone={step.isDone}
+            />
+          ))
+        )}
+      </List>
       <Button
         variant="outlined"
         color="secondary"
         size="large"
         sx={{ alignSelf: "center" }}
+        onClick={onAddNewStep}
       >
         Add new step
       </Button>
