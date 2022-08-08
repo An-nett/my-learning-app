@@ -38,7 +38,7 @@ export const CardMainPage: FC<CardMainProps> = ({
   title,
   time,
   date,
-  priority,
+  priority = PriorityTypes.low,
   steps,
 }) => {
   const navigate = useNavigate();

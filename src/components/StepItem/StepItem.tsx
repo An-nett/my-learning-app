@@ -9,7 +9,7 @@ import {
   Typography,
 } from "@mui/material";
 import moment from "moment";
-import { FC, useCallback, useState } from "react";
+import { FC, useCallback, useReducer, useState } from "react";
 import { useParams } from "react-router-dom";
 import { useAppDispatch } from "../../redux/hooks";
 import { actions } from "../../redux/slices/skills";
@@ -17,9 +17,29 @@ import { mainDate } from "../../types/date-format";
 import { StepData, TimeVariants } from "../../types/types";
 import { DoneButton } from "../Buttons/Buttons.styled";
 
-// TODO Пока пропсы не меняются, т.к. нет связи с редаксом, после создания дописать тесты
-
 interface StepItemProps extends StepData {}
+
+enum StepActionTypes {
+  TITLE = "TITLE",
+  DATE = "DATE",
+  CONDITION = "CONDITION",
+}
+
+interface StepAction {
+  type: StepActionTypes;
+  payload: string;
+}
+
+function stepReducer(state: StepItemProps, action: StepAction) {
+  switch (action.type) {
+    case StepActionTypes.TITLE:
+      return { ...state, title: action.payload };
+    case StepActionTypes.DATE:
+      return { ...state, date: action.payload };
+    default:
+      return state;
+  }
+}
 
 export const StepItem: FC<StepItemProps> = ({
   id,
@@ -30,8 +50,11 @@ export const StepItem: FC<StepItemProps> = ({
   const [hover, setHover] = useState(false);
   const [editMode, setEditMode] = useState(!title && !date);
 
-  const [inputTitle, setTitle] = useState(title);
-  const [datePlan, setDate] = useState(date);
+  const [stepState, changeStepState] = useReducer(stepReducer, {
+    id,
+    title,
+    date,
+  });
 
   const dispatch = useAppDispatch();
   const { time, skillId } = useParams() as {
@@ -42,6 +65,7 @@ export const StepItem: FC<StepItemProps> = ({
   const toggleEditMode = useCallback(() => {
     setEditMode((prevMode) => !prevMode);
   }, []);
+
   const handleMouseEnter = useCallback(() => {
     setHover(true);
   }, []);
@@ -52,17 +76,34 @@ export const StepItem: FC<StepItemProps> = ({
   const handleDoneClick = useCallback(() => {
     setEditMode(false);
     setHover(false);
-  }, []);
+
+    dispatch(
+      actions.changeStep({
+        time,
+        id: Number(skillId),
+        stepData: { ...stepState, isDone: true },
+      })
+    );
+  }, [dispatch, skillId, stepState, time]);
+
   const handleNotDoneClick = useCallback(() => {
     setEditMode(false);
     setHover(false);
-  }, []);
+
+    dispatch(
+      actions.changeStep({
+        time,
+        id: Number(skillId),
+        stepData: { ...stepState, isDone: false },
+      })
+    );
+  }, [dispatch, skillId, stepState, time]);
 
   const handleTitleChange = useCallback((e: React.BaseSyntheticEvent) => {
-    setTitle(e.target.value);
+    changeStepState({ type: StepActionTypes.TITLE, payload: e.target.value });
   }, []);
   const handleDateChange = useCallback((e: React.BaseSyntheticEvent) => {
-    setDate(e.target.value);
+    changeStepState({ type: StepActionTypes.DATE, payload: e.target.value });
   }, []);
 
   const handleDeleteStep = useCallback(() => {
@@ -86,7 +127,7 @@ export const StepItem: FC<StepItemProps> = ({
         {editMode ? (
           <TextField
             variant="outlined"
-            value={inputTitle}
+            value={stepState.title}
             placeholder="Please enter step name..."
             onChange={handleTitleChange}
             autoFocus
@@ -103,14 +144,14 @@ export const StepItem: FC<StepItemProps> = ({
             }}
           />
         ) : (
-          <Typography flexGrow={1}>{inputTitle}</Typography>
+          <Typography flexGrow={1}>{stepState.title}</Typography>
         )}
         <Stack direction="row" spacing={4} justifyContent="flex-end">
           {editMode ? (
             <TextField
               variant="standard"
               size="small"
-              value={datePlan}
+              value={stepState.date}
               onChange={handleDateChange}
               InputProps={{
                 type: "date",
@@ -120,12 +161,12 @@ export const StepItem: FC<StepItemProps> = ({
           ) : !isDone ? (
             <Typography
               sx={(theme) => ({
-                color: moment(datePlan).isAfter()
+                color: moment(stepState.date).isAfter()
                   ? "initial"
                   : theme.palette.warning.dark,
               })}
             >
-              {moment(datePlan).format(mainDate)}
+              {moment(stepState.date).format(mainDate)}
             </Typography>
           ) : null}
           {editMode ? (

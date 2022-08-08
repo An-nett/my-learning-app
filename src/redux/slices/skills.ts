@@ -1,5 +1,10 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { PriorityTypes, SkillData, TimeVariants } from "../../types/types";
+import {
+  PriorityTypes,
+  SkillData,
+  StepData,
+  TimeVariants,
+} from "../../types/types";
 
 const DUMMY_SKILLS: Record<TimeVariants, SkillData[]> = {
   [TimeVariants.past]: [
@@ -48,15 +53,29 @@ export const skillsSlice = createSlice({
   name: "skills",
   initialState,
   reducers: {
+    addSkill: (state, action: PayloadAction<SkillActionProps>) => {
+      const { id, time } = action.payload;
+      state[time].push({ id, time, steps: [] });
+    },
     removeSkill: (state, action: PayloadAction<SkillActionProps>) => {
       const { time, id } = action.payload;
       state[time] = state[time].filter((skill) => skill.id !== id);
+    },
+    changeTitle: (
+      state,
+      action: PayloadAction<SkillActionProps & { title: string }>
+    ) => {
+      const { time, id, title } = action.payload;
+      const skill = state[time].find((skill) => skill.id === id);
+      if (skill) {
+        skill.title = title;
+      }
     },
     addStep: (state, action: PayloadAction<SkillActionProps>) => {
       const { time, id } = action.payload;
       const skill = state[time].find((it) => it.id === id);
       skill?.steps.push({
-        id: id + Math.random(),
+        id: id + +Math.random().toFixed(3),
       });
     },
     removeStep: (
@@ -67,6 +86,19 @@ export const skillsSlice = createSlice({
       const skill = state[time].find((it) => it.id === id);
       if (skill?.steps) {
         skill.steps = skill.steps.filter((step) => step.id !== stepId);
+      }
+    },
+    changeStep: (
+      state,
+      action: PayloadAction<SkillActionProps & { stepData: StepData }>
+    ) => {
+      const { time, id, stepData } = action.payload;
+      const skill = state[time].find((it) => it.id === id);
+      if (skill?.steps) {
+        const updateIndex = skill.steps.findIndex(
+          (step) => step.id === stepData.id
+        );
+        skill.steps[updateIndex] = stepData;
       }
     },
   },

@@ -15,23 +15,13 @@ describe("Skill Title", () => {
   const baseProps = { title, id: String(id), time };
 
   it("renders default title in create mode", () => {
-    const { getByRole, getAllByRole, getByText } = renderWithProviders(
+    const { getByPlaceholderText } = renderWithProviders(
       <MemoryRouter initialEntries={[`/${TEST_TIME}/${TEST_ID}`]}>
         <SkillTitle {...baseProps} title={undefined} />
       </MemoryRouter>
     );
 
-    getByRole("textbox");
-    const buttons = getAllByRole("button");
-    const editButton = buttons.find((button) =>
-      queryByTestId(button, "DoneIcon")
-    );
-
-    act(() => {
-      fireEvent.click(editButton!);
-    });
-
-    getByText(DEFAULT_TITLE);
+    getByPlaceholderText(DEFAULT_TITLE);
   });
 
   it("renders right title and changes it on edit", () => {
@@ -42,7 +32,7 @@ describe("Skill Title", () => {
       </MemoryRouter>
     );
 
-    getByText(title);
+    getByText(title!);
     const buttons = getAllByRole("button");
     const editButton = buttons.find((button) =>
       queryByTestId(button, "EditIcon")

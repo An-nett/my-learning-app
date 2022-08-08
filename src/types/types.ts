@@ -31,9 +31,9 @@ export interface StepData {
 
 export interface SkillData {
   id: string | number;
-  title: string;
-  date: string | number;
+  title?: string;
+  date?: string | number;
   time: TimeVariants;
-  priority: PriorityTypes;
+  priority?: PriorityTypes;
   steps: StepData[];
 }

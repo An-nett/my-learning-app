@@ -15,14 +15,20 @@ export const SkillTitle: FC<{
   title?: string;
 }> = ({ time, id, title }) => {
   const [editMode, setEditMode] = useState(!title);
-  const [inputTitle, setInputTitle] = useState(title ?? DEFAULT_TITLE);
+  const [inputTitle, setInputTitle] = useState(title);
 
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
 
   const toggleEditMode = useCallback(() => {
-    setEditMode((prevMode) => !prevMode);
-  }, []);
+    if (editMode && inputTitle) {
+      dispatch(
+        actions.changeTitle({ time, id: Number(id), title: inputTitle })
+      );
+    }
+    setEditMode(!editMode);
+  }, [editMode, inputTitle, time, id, dispatch]);
+
   const handleTitleChange = useCallback((e: React.BaseSyntheticEvent) => {
     setInputTitle(e.target.value);
   }, []);
@@ -56,6 +62,7 @@ export const SkillTitle: FC<{
           autoFocus
           value={inputTitle}
           onChange={handleTitleChange}
+          placeholder={DEFAULT_TITLE}
           variant="standard"
           size="small"
           color="secondary"

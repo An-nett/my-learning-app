@@ -1,8 +1,9 @@
 import { fireEvent } from "@testing-library/react";
 import moment from "moment";
 import { act } from "react-dom/test-utils";
+import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { mainDate } from "../../types/date-format";
-import { TimeVariants } from "../../types/types";
+import { TimeVariants, URL } from "../../types/types";
 import { initialData, renderWithProviders } from "../../utils/test-utils";
 import { StepItem } from "./StepItem";
 
@@ -19,7 +20,11 @@ describe("Step Item", () => {
     let item: HTMLElement | null = null;
 
     const { getByText, queryByText, rerender } = renderWithProviders(
-      <StepItem {...getExProps(3.2)} />
+      <MemoryRouter initialEntries={[`/${TEST_TIME}/${TEST_ID}`]}>
+        <Routes>
+          <Route path={URL.SKILL} element={<StepItem {...getExProps(3.2)} />} />
+        </Routes>
+      </MemoryRouter>
     );
     item = getByText(moment(getExProps(3.2).date).format(mainDate));
 
@@ -33,7 +38,11 @@ describe("Step Item", () => {
     let notDone: HTMLElement | null = null;
 
     let { getByText, queryByText, getByTestId, rerender } = renderWithProviders(
-      <StepItem {...getExProps(3.1)} />
+      <MemoryRouter initialEntries={[`/${TEST_TIME}/${TEST_ID}`]}>
+        <Routes>
+          <Route path={URL.SKILL} element={<StepItem {...getExProps(3.1)} />} />
+        </Routes>
+      </MemoryRouter>
     );
     done = getByText(/done/i);
     notDone = queryByText(/not yet/i);
@@ -60,7 +69,11 @@ describe("Step Item", () => {
 
   it("changes date and title input on edit", () => {
     let { getByText, getAllByRole, container } = renderWithProviders(
-      <StepItem {...getExProps(3.2)} />
+      <MemoryRouter initialEntries={[`/${TEST_TIME}/${TEST_ID}`]}>
+        <Routes>
+          <Route path={URL.SKILL} element={<StepItem {...getExProps(3.2)} />} />
+        </Routes>
+      </MemoryRouter>
     );
     getByText(getExProps(3.2).title!);
 
