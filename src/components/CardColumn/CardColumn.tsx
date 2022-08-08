@@ -2,8 +2,7 @@ import { Add } from "@mui/icons-material";
 import { Grid, Stack } from "@mui/material";
 import { FC, useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAppDispatch } from "../../redux/hooks";
-import { actions } from "../../redux/slices/skills";
+import { useAddSkillMutation } from "../../services/skills";
 import { TimeTitles } from "../../types/types";
 import { AddButton } from "../Buttons/Buttons.styled";
 import {
@@ -22,8 +21,9 @@ export const CardColumn: FC<CardColumnProps> = ({ time, children }) => {
   const [maskType, setMaskType] = useState<TMaskType>();
   const [hover, setHover] = useState(false);
 
+  const [addSkill, { isLoading }] = useAddSkillMutation();
+
   const ref = useRef<HTMLDivElement>(null);
-  const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
   const handleScroll = useCallback(() => {
@@ -69,10 +69,10 @@ export const CardColumn: FC<CardColumnProps> = ({ time, children }) => {
   const handleMouseLeave = useCallback(() => setHover(false), []);
 
   const handleAddSkill = useCallback(() => {
-    const id = +Math.random().toFixed(3);
-    dispatch(actions.addSkill({ time, id }));
+    const id = (Math.random() * 1000).toFixed(0);
+    addSkill({ skill: { time }, id, time });
     navigate(`/${time}/${id}`);
-  }, [dispatch, navigate, time]);
+  }, [navigate, time, addSkill]);
 
   return (
     <Grid
@@ -96,6 +96,7 @@ export const CardColumn: FC<CardColumnProps> = ({ time, children }) => {
         </Stack>
         <BackgroundTrackStyled time={time}>
           <CardTrackStyled
+            key={time + (children as [])?.length}
             time={time}
             maskType={maskType}
             spacing={2}

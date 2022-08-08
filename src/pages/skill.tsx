@@ -1,12 +1,19 @@
-import { Button, List, Stack, Typography } from "@mui/material";
+import {
+  Button,
+  CircularProgress,
+  List,
+  Stack,
+  Typography,
+} from "@mui/material";
 import { FC, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { StepItem } from "../components/StepItem/StepItem";
 import { SkillTitle } from "../components/SkillTitle/SkillTitle";
 import { useParams } from "react-router-dom";
-import { useAppDispatch, useAppSelector } from "../redux/hooks";
+import { useAppDispatch } from "../redux/hooks";
 import { TimeVariants, URL } from "../types/types";
 import { actions } from "../redux/slices/skills";
+import { useGetSkillsQuery } from "../services/skills";
 
 export const SkillPage: FC = () => {
   const { time, skillId } = useParams() as {
@@ -16,19 +23,25 @@ export const SkillPage: FC = () => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
-  const skillData = useAppSelector((state) =>
-    state.skills[time]?.find((it) => it.id === Number(skillId))
-  );
+  const { data: skillData, isFetching } = useGetSkillsQuery();
 
   const onAddNewStep = useCallback(() => {
     dispatch(actions.addStep({ time, id: Number(skillId) }));
   }, [dispatch, time, skillId]);
 
-  if (!skillData)
+  const { title, steps, id } =
+    skillData?.[time]?.find((skill) => Number(skillId) === Number(skill.id)) ??
+    {};
+
+  if (isFetching) {
+    return <CircularProgress />;
+  }
+
+  if (!id)
     return (
       <Stack spacing={10}>
         <Typography variant="h1" component="p" textAlign="center">
-          Sorry, the skill with given id was not found...
+          Sorry, the skill with given id was not found or is not loaded yet...
         </Typography>
         <Button
           variant="outlined"
@@ -44,7 +57,7 @@ export const SkillPage: FC = () => {
 
   return (
     <Stack spacing={2}>
-      <SkillTitle time={time} id={skillId} title={skillData.title} />
+      <SkillTitle time={time} id={skillId} title={title} />
       <List
         sx={(theme) => ({
           border: `2px solid ${theme.palette.info.light}`,
@@ -52,12 +65,12 @@ export const SkillPage: FC = () => {
           p: 3,
         })}
       >
-        {!skillData.steps.length ? (
+        {!steps?.length ? (
           <Typography>
             There are no steps yet. Please add some learning steps!
           </Typography>
         ) : (
-          skillData.steps.map((step) => (
+          steps?.map((step) => (
             <StepItem
               id={step.id}
               key={step.title}

@@ -4,6 +4,7 @@ import { FC, useCallback, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAppDispatch } from "../../redux/hooks";
 import { actions } from "../../redux/slices/skills";
+import { useRemoveSkillMutation } from "../../services/skills";
 import { TimeVariants, URL } from "../../types/types";
 import { ActionButton } from "../Buttons/Buttons.styled";
 
@@ -16,6 +17,8 @@ export const SkillTitle: FC<{
 }> = ({ time, id, title }) => {
   const [editMode, setEditMode] = useState(!title);
   const [inputTitle, setInputTitle] = useState(title);
+
+  const [removeSkill] = useRemoveSkillMutation();
 
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
@@ -34,9 +37,9 @@ export const SkillTitle: FC<{
   }, []);
 
   const handleDeleteSkill = useCallback(() => {
-    dispatch(actions.removeSkill({ time, id: Number(id) }));
+    removeSkill({ time, id });
     navigate(URL.MAIN);
-  }, [dispatch, time, id, navigate]);
+  }, [time, id, navigate, removeSkill]);
 
   return (
     <Stack

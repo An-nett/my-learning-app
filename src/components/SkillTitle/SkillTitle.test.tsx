@@ -9,10 +9,10 @@ const TEST_TIME = TimeVariants.now;
 const TEST_ID = 3;
 
 describe("Skill Title", () => {
-  const { title, id, time } = initialData[TEST_TIME].find(
+  const { title, id } = initialData[TEST_TIME].find(
     (skill) => skill.id === TEST_ID
   )!;
-  const baseProps = { title, id: String(id), time };
+  const baseProps = { title, id: String(id), time: TEST_TIME };
 
   it("renders default title in create mode", () => {
     const { getByPlaceholderText } = renderWithProviders(

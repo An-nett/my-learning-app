@@ -13,7 +13,6 @@ const DUMMY_SKILLS: Record<TimeVariants, SkillData[]> = {
       title: "Example Skill 1",
       date: "2022-08-05",
       priority: PriorityTypes.high,
-      time: TimeVariants.past,
       steps: [],
     },
     {
@@ -21,7 +20,6 @@ const DUMMY_SKILLS: Record<TimeVariants, SkillData[]> = {
       title: "Example Skill 2",
       date: "2022-06-15",
       priority: PriorityTypes.low,
-      time: TimeVariants.past,
       steps: [],
     },
   ],
@@ -31,7 +29,6 @@ const DUMMY_SKILLS: Record<TimeVariants, SkillData[]> = {
       title: "Example Skill 3",
       date: Date.now(),
       priority: PriorityTypes.medium,
-      time: TimeVariants.now,
       steps: [
         { id: 3.1, title: "Example step 1", date: "2022-07-03", isDone: true },
         { id: 3.2, title: "Example step 2", date: "2022-08-06", isDone: false },
@@ -55,7 +52,7 @@ export const skillsSlice = createSlice({
   reducers: {
     addSkill: (state, action: PayloadAction<SkillActionProps>) => {
       const { id, time } = action.payload;
-      state[time].push({ id, time, steps: [] });
+      state[time].push({ id, steps: [] });
     },
     removeSkill: (state, action: PayloadAction<SkillActionProps>) => {
       const { time, id } = action.payload;

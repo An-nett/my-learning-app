@@ -21,7 +21,9 @@ import { PriorityTypes, SkillData, TimeVariants } from "../../types/types";
 import { getTimeStyle } from "../../utils/style";
 import { ProgressBar } from "./ProgressBar/ProgressBar";
 
-interface CardMainProps extends SkillData {}
+interface CardMainProps extends SkillData {
+  time: TimeVariants;
+}
 
 const PriorityIcon: FC<{ priority: PriorityTypes }> = ({ priority }) => {
   if (priority === PriorityTypes.high) {
@@ -39,7 +41,7 @@ export const CardMainPage: FC<CardMainProps> = ({
   time,
   date,
   priority = PriorityTypes.low,
-  steps,
+  steps = [],
 }) => {
   const navigate = useNavigate();
 
@@ -57,7 +59,7 @@ export const CardMainPage: FC<CardMainProps> = ({
             component={RouterLink}
             to={`${time}/${id}`}
           >
-            {title}
+            {title ?? "No title yet"}
           </Link>
         }
         action={
