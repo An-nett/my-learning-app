@@ -1,7 +1,7 @@
 import { fireEvent, queryByTestId } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { act } from "react-dom/test-utils";
-import { TimeVariants } from "../../types/types";
+import { PriorityTypes, TimeVariants } from "../../types/types";
 import { initialData, renderWithProviders } from "../../utils/test-utils";
 import { DEFAULT_TITLE, SkillTitle } from "./SkillTitle";
 
@@ -12,7 +12,12 @@ describe("Skill Title", () => {
   const { title, id } = initialData[TEST_TIME].find(
     (skill) => skill.id === TEST_ID
   )!;
-  const baseProps = { title, id: String(id), time: TEST_TIME };
+  const baseProps = {
+    title,
+    id: String(id),
+    time: TEST_TIME,
+    priority: PriorityTypes.low,
+  };
 
   it("renders default title in create mode", () => {
     const { getByPlaceholderText } = renderWithProviders(

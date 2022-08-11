@@ -1,4 +1,4 @@
-import { Grid } from "@mui/material";
+import { CircularProgress, Grid, Stack } from "@mui/material";
 import { FC } from "react";
 import { CardMainPage } from "../components/Card/Card";
 import { CardColumn } from "../components/CardColumn/CardColumn";
@@ -6,7 +6,15 @@ import { useGetSkillsQuery } from "../services/skills";
 import { TimeVariants } from "../types/types";
 
 export const MainPage: FC = () => {
-  const { data: skills } = useGetSkillsQuery();
+  const { data: skills, isLoading } = useGetSkillsQuery();
+
+  if (isLoading) {
+    return (
+      <Stack alignItems="center" pt={8}>
+        <CircularProgress size={40} />
+      </Stack>
+    );
+  }
 
   return (
     <Grid container spacing={{ xs: 3, xl: 5 }} justifyContent="center">

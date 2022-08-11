@@ -1,12 +1,15 @@
 import { ArrowBack, Delete, Done, Edit } from "@mui/icons-material";
-import { alpha, IconButton, Stack, TextField, Typography } from "@mui/material";
-import { FC, useCallback, useState } from "react";
+import { alpha, Stack, TextField, Typography } from "@mui/material";
+import { FC, useCallback, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAppDispatch } from "../../redux/hooks";
-import { actions } from "../../redux/slices/skills";
-import { useRemoveSkillMutation } from "../../services/skills";
-import { TimeVariants, URL } from "../../types/types";
+import {
+  useRemoveSkillMutation,
+  useUpdateSkillMutation,
+} from "../../services/skills";
+import { PriorityTypes, TimeVariants, URL } from "../../types/types";
+import { savingChanges } from "../../utils/text";
 import { ActionButton } from "../Buttons/Buttons.styled";
+import { PriorityIcon } from "../Icons/Icons";
 
 export const DEFAULT_TITLE = "Enter skill name..";
 
@@ -14,32 +17,38 @@ export const SkillTitle: FC<{
   time: TimeVariants;
   id: string;
   title?: string;
-}> = ({ time, id, title }) => {
+  priority: PriorityTypes;
+}> = ({ time, id, title, priority }) => {
   const [editMode, setEditMode] = useState(!title);
-  const [inputTitle, setInputTitle] = useState(title);
+  const [iconPriority, setIconPriority] = useState(priority);
+
+  const ref = useRef<HTMLInputElement | null>(null);
 
   const [removeSkill] = useRemoveSkillMutation();
+  const [updateSkill, { isLoading }] = useUpdateSkillMutation();
 
   const navigate = useNavigate();
-  const dispatch = useAppDispatch();
 
   const toggleEditMode = useCallback(() => {
-    if (editMode && inputTitle) {
-      dispatch(
-        actions.changeTitle({ time, id: Number(id), title: inputTitle })
-      );
+    if (editMode && ref?.current) {
+      updateSkill({
+        id,
+        time,
+        priority: iconPriority,
+        title: ref.current.value,
+      });
     }
     setEditMode(!editMode);
-  }, [editMode, inputTitle, time, id, dispatch]);
-
-  const handleTitleChange = useCallback((e: React.BaseSyntheticEvent) => {
-    setInputTitle(e.target.value);
-  }, []);
+  }, [editMode, time, id, iconPriority, updateSkill]);
 
   const handleDeleteSkill = useCallback(() => {
     removeSkill({ time, id });
     navigate(URL.MAIN);
   }, [time, id, navigate, removeSkill]);
+
+  const handlePriorityChange = useCallback(() => {
+    setIconPriority((prev) => (prev + 1 <= 2 ? prev + 1 : 0));
+  }, []);
 
   return (
     <Stack
@@ -53,18 +62,18 @@ export const SkillTitle: FC<{
         borderRadius: theme.spacing(1),
       })}
     >
-      <IconButton
+      <ActionButton
         color="secondary"
         sx={{ borderRadius: 0.5, p: 0 }}
         onClick={() => navigate(-1)}
       >
         <ArrowBack />
-      </IconButton>
+      </ActionButton>
       {editMode ? (
         <TextField
           autoFocus
-          value={inputTitle}
-          onChange={handleTitleChange}
+          inputRef={ref}
+          defaultValue={title}
           placeholder={DEFAULT_TITLE}
           variant="standard"
           size="small"
@@ -73,15 +82,24 @@ export const SkillTitle: FC<{
         />
       ) : (
         <Typography variant="overline" flexGrow={1}>
-          {inputTitle}
+          {isLoading ? savingChanges : title}
         </Typography>
       )}
-      <ActionButton onClick={toggleEditMode}>
+      {editMode && (
+        <ActionButton onClick={handlePriorityChange}>
+          <PriorityIcon priority={iconPriority} />
+        </ActionButton>
+      )}
+      <ActionButton onClick={toggleEditMode} disabled={!!isLoading}>
         {editMode ? <Done /> : <Edit />}
       </ActionButton>
-      <IconButton color="error" onClick={handleDeleteSkill}>
+      <ActionButton
+        color="error"
+        onClick={handleDeleteSkill}
+        disabled={!!isLoading}
+      >
         <Delete />
-      </IconButton>
+      </ActionButton>
     </Stack>
   );
 };

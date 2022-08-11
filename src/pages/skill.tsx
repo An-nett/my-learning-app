@@ -5,36 +5,41 @@ import {
   Stack,
   Typography,
 } from "@mui/material";
-import { FC, useCallback } from "react";
+import { FC, useCallback, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { StepItem } from "../components/StepItem/StepItem";
 import { SkillTitle } from "../components/SkillTitle/SkillTitle";
 import { useParams } from "react-router-dom";
-import { useAppDispatch } from "../redux/hooks";
 import { TimeVariants, URL } from "../types/types";
-import { actions } from "../redux/slices/skills";
-import { useGetSkillsQuery } from "../services/skills";
+import { useGetSkillQuery } from "../services/skills";
 
 export const SkillPage: FC = () => {
-  const { time, skillId } = useParams() as {
+  const { time, skillId: id } = useParams() as {
     time: TimeVariants;
     skillId: string;
   };
-  const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
-  const { data: skillData, isFetching } = useGetSkillsQuery();
+  const [isAdding, setIsAdding] = useState(false);
+
+  const { data: skillData, isFetching } = useGetSkillQuery({ id, time });
+
+  const { title, steps, priority = 0 } = skillData ?? {};
 
   const onAddNewStep = useCallback(() => {
-    dispatch(actions.addStep({ time, id: Number(skillId) }));
-  }, [dispatch, time, skillId]);
+    setIsAdding(true);
+  }, []);
 
-  const { title, steps, id } =
-    skillData?.[time]?.find((skill) => Number(skillId) === Number(skill.id)) ??
-    {};
+  const onSaveStep = useCallback(() => {
+    setIsAdding(false);
+  }, []);
 
   if (isFetching) {
-    return <CircularProgress />;
+    return (
+      <Stack alignItems="center" pt={8}>
+        <CircularProgress size={40} />
+      </Stack>
+    );
   }
 
   if (!id)
@@ -57,7 +62,7 @@ export const SkillPage: FC = () => {
 
   return (
     <Stack spacing={2}>
-      <SkillTitle time={time} id={skillId} title={title} />
+      <SkillTitle {...{ time, id, title, priority }} />
       <List
         sx={(theme) => ({
           border: `2px solid ${theme.palette.info.light}`,
@@ -65,7 +70,7 @@ export const SkillPage: FC = () => {
           p: 3,
         })}
       >
-        {!steps?.length ? (
+        {!steps?.length && !isAdding ? (
           <Typography>
             There are no steps yet. Please add some learning steps!
           </Typography>
@@ -73,12 +78,18 @@ export const SkillPage: FC = () => {
           steps?.map((step) => (
             <StepItem
               id={step.id}
-              key={step.title}
+              key={step.id}
               title={step.title}
               date={step.date}
               isDone={step.isDone}
             />
           ))
+        )}
+        {isAdding && (
+          <StepItem
+            id={+(Number(id ?? 0) + Math.random() * 1000).toFixed(0)}
+            onSave={onSaveStep}
+          />
         )}
       </List>
       <Button

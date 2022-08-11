@@ -21,7 +21,7 @@ export const CardColumn: FC<CardColumnProps> = ({ time, children }) => {
   const [maskType, setMaskType] = useState<TMaskType>();
   const [hover, setHover] = useState(false);
 
-  const [addSkill, { isLoading }] = useAddSkillMutation();
+  const [addSkill] = useAddSkillMutation();
 
   const ref = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
@@ -70,7 +70,7 @@ export const CardColumn: FC<CardColumnProps> = ({ time, children }) => {
 
   const handleAddSkill = useCallback(() => {
     const id = (Math.random() * 1000).toFixed(0);
-    addSkill({ skill: { time }, id, time });
+    addSkill({ id, time, date: Date.now() });
     navigate(`/${time}/${id}`);
   }, [navigate, time, addSkill]);
 
