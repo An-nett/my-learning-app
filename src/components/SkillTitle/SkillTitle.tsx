@@ -1,17 +1,21 @@
 import { ArrowBack, Delete, Done, Edit } from "@mui/icons-material";
-import { alpha, Stack, TextField, Typography } from "@mui/material";
-import { FC, useCallback, useRef, useState } from "react";
+import {
+  alpha,
+  CircularProgress,
+  Stack,
+  TextField,
+  Typography,
+} from "@mui/material";
+import { FC, useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   useRemoveSkillMutation,
   useUpdateSkillMutation,
 } from "../../services/skills";
 import { PriorityTypes, TimeVariants, URL } from "../../types/types";
-import { savingChanges } from "../../utils/text";
+import { DEFAULT_TITLE, SAVING_CHANGES } from "../../utils/text";
 import { ActionButton } from "../Buttons/Buttons.styled";
 import { PriorityIcon } from "../Icons/Icons";
-
-export const DEFAULT_TITLE = "Enter skill name..";
 
 export const SkillTitle: FC<{
   time: TimeVariants;
@@ -20,12 +24,23 @@ export const SkillTitle: FC<{
   priority: PriorityTypes;
 }> = ({ time, id, title, priority }) => {
   const [editMode, setEditMode] = useState(!title);
+
+  const [inputTitle, setInputTitle] = useState(title);
   const [iconPriority, setIconPriority] = useState(priority);
 
   const ref = useRef<HTMLInputElement | null>(null);
 
   const [removeSkill] = useRemoveSkillMutation();
-  const [updateSkill, { isLoading }] = useUpdateSkillMutation();
+  const [updateSkill, { isLoading, data }] = useUpdateSkillMutation();
+
+  useEffect(() => {
+    if (data?.title) {
+      setInputTitle(data.title);
+    }
+    if (data?.priority) {
+      setIconPriority(data.priority);
+    }
+  }, [data]);
 
   const navigate = useNavigate();
 
@@ -50,6 +65,14 @@ export const SkillTitle: FC<{
     setIconPriority((prev) => (prev + 1 <= 2 ? prev + 1 : 0));
   }, []);
 
+  if (isLoading) {
+    return (
+      <Stack alignItems="center" justifyContent="center" width="100%">
+        <CircularProgress size={30} />
+      </Stack>
+    );
+  }
+
   return (
     <Stack
       direction="row"
@@ -73,7 +96,7 @@ export const SkillTitle: FC<{
         <TextField
           autoFocus
           inputRef={ref}
-          defaultValue={title}
+          defaultValue={inputTitle}
           placeholder={DEFAULT_TITLE}
           variant="standard"
           size="small"
@@ -82,7 +105,7 @@ export const SkillTitle: FC<{
         />
       ) : (
         <Typography variant="overline" flexGrow={1}>
-          {isLoading ? savingChanges : title}
+          {inputTitle}
         </Typography>
       )}
       {editMode && (

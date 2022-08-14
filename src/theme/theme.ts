@@ -27,7 +27,7 @@ let theme = createTheme({
       lineHeight: 1,
     },
     overline: {
-      fontSize: 30,
+      fontSize: 26,
       lineHeight: 1,
     },
   },

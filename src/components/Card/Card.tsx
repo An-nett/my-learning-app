@@ -14,6 +14,7 @@ import { Link as RouterLink, useNavigate } from "react-router-dom";
 import { mainDate } from "../../types/date-format";
 import { PriorityTypes, SkillData, TimeVariants } from "../../types/types";
 import { getTimeStyle } from "../../utils/style";
+import { NO_TITLE } from "../../utils/text";
 import { PriorityIcon } from "../Icons/Icons";
 import { ProgressBar } from "./ProgressBar/ProgressBar";
 
@@ -45,7 +46,7 @@ export const CardMainPage: FC<CardMainProps> = ({
             component={RouterLink}
             to={`${time}/${id}`}
           >
-            {title ?? "No title yet"}
+            {title ?? NO_TITLE}
           </Link>
         }
         action={

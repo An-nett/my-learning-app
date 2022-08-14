@@ -1,5 +1,5 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-import { SkillData, StepData, TimeVariants } from "../types/types";
+import { SkillData, TimeVariants } from "../types/types";
 
 type ResponseSkillData = Partial<
   Record<TimeVariants, Record<string, Omit<SkillData, "id">>>
@@ -49,7 +49,7 @@ export const skillsApi = createApi({
       },
     }),
     getSkill: builder.query<SkillData, BaseApiProps>({
-      query: ({ id, time }) => ({ url: `skills/${time}/${id}.json` }),
+      query: ({ id, time }) => ({ url: `/skills/${time}/${id}.json` }),
       providesTags: (res, err, body) =>
         body?.id ? [{ type: "skills", id: +body.id }] : [],
     }),
@@ -69,7 +69,7 @@ export const skillsApi = createApi({
       invalidatesTags: [{ type: "skills", id: "list" }],
     }),
     updateSkill: builder.mutation<
-      Pick<SkillData, "title">,
+      Partial<SkillData>,
       Partial<SkillData> & { time: TimeVariants }
     >({
       query: ({ id, time, ...skillData }) => ({
@@ -77,16 +77,7 @@ export const skillsApi = createApi({
         url: `skills/${time}/${id}.json`,
         body: skillData,
       }),
-      invalidatesTags: (res, err, body) =>
-        body?.id ? [{ type: "skills", id: +body.id }] : [],
-    }),
-    updateSteps: builder.mutation<void, BaseApiProps & { steps: StepData[] }>({
-      query: ({ id, time, steps }) => ({
-        method: "PATCH",
-        url: `skills/${time}/${id}/steps.json`,
-        body: steps.reduce((acc, step, ind) => ({ ...acc, [ind]: step }), {}),
-      }),
-      invalidatesTags: (res, err, body) => [{ type: "skills", id: +body.id }],
+      invalidatesTags: [{ type: "skills", id: "list" }],
     }),
   }),
 });
@@ -97,5 +88,4 @@ export const {
   useAddSkillMutation,
   useRemoveSkillMutation,
   useUpdateSkillMutation,
-  useUpdateStepsMutation,
 } = skillsApi;

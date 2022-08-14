@@ -22,7 +22,7 @@ export const SkillPage: FC = () => {
 
   const [isAdding, setIsAdding] = useState(false);
 
-  const { data: skillData, isFetching } = useGetSkillQuery({ id, time });
+  const { data: skillData, isLoading } = useGetSkillQuery({ id, time });
 
   const { title, steps, priority = 0 } = skillData ?? {};
 
@@ -34,7 +34,7 @@ export const SkillPage: FC = () => {
     setIsAdding(false);
   }, []);
 
-  if (isFetching) {
+  if (isLoading) {
     return (
       <Stack alignItems="center" pt={8}>
         <CircularProgress size={40} />
@@ -46,7 +46,7 @@ export const SkillPage: FC = () => {
     return (
       <Stack spacing={10}>
         <Typography variant="h1" component="p" textAlign="center">
-          Sorry, the skill with given id was not found or is not loaded yet...
+          Sorry, the skill with given id was not found...
         </Typography>
         <Button
           variant="outlined"
