@@ -23,7 +23,7 @@ export const ScrollButton = styled(IconButton, {
 }));
 
 export const ActionButton = styled(IconButton)(({ theme }) => ({
-  borderRadius: theme.spacing(0.5),
+  borderRadius: theme.spacing(1),
 }));
 
 interface DoneButtonStyledProps {

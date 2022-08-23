@@ -2,20 +2,22 @@ import { Delete, Edit } from "@mui/icons-material";
 import {
   alpha,
   ButtonGroup,
-  IconButton,
   ListItem,
   Stack,
   TextField,
   Typography,
 } from "@mui/material";
 import moment from "moment";
-import { FC, useCallback, useReducer, useState } from "react";
+import { FC, useCallback, useEffect, useReducer, useState } from "react";
 import { useParams } from "react-router-dom";
-import { useAppDispatch } from "../../redux/hooks";
-import { actions } from "../../redux/slices/skills";
-import { mainDate } from "../../types/date-format";
-import { StepData, TimeVariants } from "../../types/types";
-import { DoneButton } from "../Buttons/Buttons.styled";
+import {
+  useGetStepsQuery,
+  useUpdateStepsMutation,
+} from "../../../services/skills";
+import { inputDate, mainDate } from "../../../types/date-format";
+import { StepData, TimeVariants } from "../../../types/types";
+import { SAVING_CHANGES, STEP_PLACEHOLDER } from "../../../utils/text";
+import { ActionButton, DoneButton } from "../../Buttons/Buttons.styled";
 
 interface StepItemProps extends StepData {}
 
@@ -27,15 +29,17 @@ enum StepActionTypes {
 
 interface StepAction {
   type: StepActionTypes;
-  payload: string;
+  payload: string | number | boolean;
 }
 
-function stepReducer(state: StepItemProps, action: StepAction) {
+function stepReducer(state: Omit<StepItemProps, "steps">, action: StepAction) {
   switch (action.type) {
     case StepActionTypes.TITLE:
-      return { ...state, title: action.payload };
+      return { ...state, title: action.payload as string };
     case StepActionTypes.DATE:
-      return { ...state, date: action.payload };
+      return { ...state, date: action.payload as string | number };
+    case StepActionTypes.CONDITION:
+      return { ...state, isDone: action.payload as boolean };
     default:
       return state;
   }
@@ -50,17 +54,40 @@ export const StepItem: FC<StepItemProps> = ({
   const [hover, setHover] = useState(false);
   const [editMode, setEditMode] = useState(!title && !date);
 
-  const [stepState, changeStepState] = useReducer(stepReducer, {
-    id,
-    title,
-    date,
-  });
-
-  const dispatch = useAppDispatch();
   const { time, skillId } = useParams() as {
     time: TimeVariants;
     skillId: string;
   };
+
+  const { data: steps = [] } = useGetStepsQuery({
+    id: skillId,
+    time,
+  });
+
+  const [stepState, changeStepState] = useReducer(stepReducer, {
+    id,
+    title,
+    date,
+    isDone,
+  });
+
+  const [updateSteps, { isLoading }] = useUpdateStepsMutation();
+
+  useEffect(() => {
+    if (steps) {
+      const step = steps.find((step) => step.id === id);
+
+      step?.title &&
+        changeStepState({ type: StepActionTypes.TITLE, payload: step.title });
+      step?.date &&
+        changeStepState({ type: StepActionTypes.DATE, payload: step.date });
+      typeof step?.isDone === "boolean" &&
+        changeStepState({
+          type: StepActionTypes.CONDITION,
+          payload: step.isDone,
+        });
+    }
+  }, [steps, id]);
 
   const toggleEditMode = useCallback(() => {
     setEditMode((prevMode) => !prevMode);
@@ -77,27 +104,29 @@ export const StepItem: FC<StepItemProps> = ({
     setEditMode(false);
     setHover(false);
 
-    dispatch(
-      actions.changeStep({
-        time,
-        id: Number(skillId),
-        stepData: { ...stepState, isDone: true },
-      })
-    );
-  }, [dispatch, skillId, stepState, time]);
+    updateSteps({
+      id: skillId,
+      time,
+      steps: [
+        ...steps.filter((step) => step.id !== id),
+        { ...stepState, isDone: true },
+      ],
+    });
+  }, [skillId, stepState, time, steps, updateSteps, id]);
 
   const handleNotDoneClick = useCallback(() => {
     setEditMode(false);
     setHover(false);
 
-    dispatch(
-      actions.changeStep({
-        time,
-        id: Number(skillId),
-        stepData: { ...stepState, isDone: false },
-      })
-    );
-  }, [dispatch, skillId, stepState, time]);
+    updateSteps({
+      id: skillId,
+      time,
+      steps: [
+        ...steps.filter((step) => step.id !== id),
+        { ...stepState, isDone: false },
+      ],
+    });
+  }, [skillId, stepState, time, steps, updateSteps, id]);
 
   const handleTitleChange = useCallback((e: React.BaseSyntheticEvent) => {
     changeStepState({ type: StepActionTypes.TITLE, payload: e.target.value });
@@ -107,13 +136,29 @@ export const StepItem: FC<StepItemProps> = ({
   }, []);
 
   const handleDeleteStep = useCallback(() => {
-    dispatch(actions.removeStep({ time, id: Number(skillId), stepId: id }));
-  }, [dispatch, time, skillId, id]);
+    updateSteps({
+      id: skillId,
+      time,
+      steps: steps.filter((step) => step.id !== id),
+    });
+  }, [time, skillId, id, steps, updateSteps]);
+
+  if (isLoading) {
+    return (
+      <ListItem sx={{ px: 2, py: 3, "&:not(:last-child)": { mb: 2 } }}>
+        <Typography>{SAVING_CHANGES}</Typography>
+      </ListItem>
+    );
+  }
+
+  if (!steps?.find((step) => step.id === id)) {
+    return null;
+  }
 
   return (
     <ListItem sx={{ p: 0, "&:not(:last-child)": { mb: 2 } }}>
       <Stack
-        direction={{ xs: "column", md: "row" }}
+        direction={{ xs: "column", sm: "row" }}
         spacing={3}
         alignItems={{ xs: "stretch", md: "center" }}
         px={3}
@@ -127,8 +172,8 @@ export const StepItem: FC<StepItemProps> = ({
         {editMode ? (
           <TextField
             variant="outlined"
-            value={stepState.title}
-            placeholder="Please enter step name..."
+            value={stepState.title ?? ""}
+            placeholder={STEP_PLACEHOLDER}
             onChange={handleTitleChange}
             autoFocus
             size="small"
@@ -146,19 +191,24 @@ export const StepItem: FC<StepItemProps> = ({
         ) : (
           <Typography flexGrow={1}>{stepState.title}</Typography>
         )}
-        <Stack direction="row" spacing={4} justifyContent="flex-end">
+        <Stack
+          direction="row"
+          spacing={4}
+          justifyContent="flex-end"
+          alignItems="center"
+        >
           {editMode ? (
             <TextField
               variant="standard"
               size="small"
-              value={stepState.date}
+              value={stepState.date ?? moment().format(inputDate)}
               onChange={handleDateChange}
               InputProps={{
                 type: "date",
                 sx: { "& .MuiInput-input": { fontSize: 20 } },
               }}
             />
-          ) : !isDone ? (
+          ) : !stepState.isDone ? (
             <Typography
               sx={(theme) => ({
                 color: moment(stepState.date).isAfter()
@@ -178,17 +228,23 @@ export const StepItem: FC<StepItemProps> = ({
             </ButtonGroup>
           ) : (
             <DoneButton
-              isDone={isDone}
+              isDone={stepState.isDone}
               onMouseEnter={handleMouseEnter}
               onMouseLeave={handleMouseLeave}
               onClick={toggleEditMode}
             >
-              {hover || editMode ? <Edit /> : isDone ? "done" : "not yet"}
+              {hover || editMode ? (
+                <Edit />
+              ) : stepState.isDone ? (
+                "done"
+              ) : (
+                "not yet"
+              )}
             </DoneButton>
           )}
-          <IconButton color="error" onClick={handleDeleteStep}>
+          <ActionButton color="error" onClick={handleDeleteStep}>
             <Delete />
-          </IconButton>
+          </ActionButton>
         </Stack>
       </Stack>
     </ListItem>

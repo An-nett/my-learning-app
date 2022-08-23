@@ -18,7 +18,6 @@ export const initialData: Record<TimeVariants, SkillData[]> = {
       title: "Example Skill 3",
       date: Date.now(),
       priority: PriorityTypes.medium,
-      time: TimeVariants.now,
       steps: [
         { id: 3.1, title: "Example step 1", date: "2022-07-03", isDone: true },
         { id: 3.2, title: "Example step 2", date: "2022-08-06", isDone: false },

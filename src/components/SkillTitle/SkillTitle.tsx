@@ -1,42 +1,83 @@
 import { ArrowBack, Delete, Done, Edit } from "@mui/icons-material";
-import { alpha, IconButton, Stack, TextField, Typography } from "@mui/material";
-import { FC, useCallback, useState } from "react";
+import {
+  alpha,
+  CircularProgress,
+  Stack,
+  TextField,
+  Typography,
+} from "@mui/material";
+import { FC, useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAppDispatch } from "../../redux/hooks";
-import { actions } from "../../redux/slices/skills";
-import { TimeVariants, URL } from "../../types/types";
+import {
+  useRemoveSkillMutation,
+  useUpdateSkillMutation,
+} from "../../services/skills";
+import { PriorityTypes, TimeVariants, URL } from "../../types/types";
+import { DEFAULT_TITLE, SAVING_CHANGES } from "../../utils/text";
 import { ActionButton } from "../Buttons/Buttons.styled";
-
-export const DEFAULT_TITLE = "Enter skill name..";
+import { PriorityIcon } from "../Icons/Icons";
 
 export const SkillTitle: FC<{
   time: TimeVariants;
   id: string;
   title?: string;
-}> = ({ time, id, title }) => {
+  priority: PriorityTypes;
+}> = ({ time, id, title, priority }) => {
   const [editMode, setEditMode] = useState(!title);
+
   const [inputTitle, setInputTitle] = useState(title);
+  const [iconPriority, setIconPriority] = useState(priority);
+
+  const ref = useRef<HTMLInputElement | null>(null);
+
+  const [removeSkill] = useRemoveSkillMutation();
+  const [updateSkill, { isLoading, data }] = useUpdateSkillMutation();
+
+  useEffect(() => {
+    if (data?.title) {
+      setInputTitle(data.title);
+    }
+    if (data?.priority) {
+      setIconPriority(data.priority);
+    }
+  }, [data]);
 
   const navigate = useNavigate();
-  const dispatch = useAppDispatch();
 
   const toggleEditMode = useCallback(() => {
-    if (editMode && inputTitle) {
-      dispatch(
-        actions.changeTitle({ time, id: Number(id), title: inputTitle })
-      );
+    if (editMode && ref?.current) {
+      updateSkill({
+        id,
+        time,
+        priority: iconPriority,
+        title: ref.current.value,
+      });
     }
     setEditMode(!editMode);
-  }, [editMode, inputTitle, time, id, dispatch]);
-
-  const handleTitleChange = useCallback((e: React.BaseSyntheticEvent) => {
-    setInputTitle(e.target.value);
-  }, []);
+  }, [editMode, time, id, iconPriority, updateSkill]);
 
   const handleDeleteSkill = useCallback(() => {
-    dispatch(actions.removeSkill({ time, id: Number(id) }));
+    removeSkill({ time, id });
     navigate(URL.MAIN);
-  }, [dispatch, time, id, navigate]);
+  }, [time, id, navigate, removeSkill]);
+
+  const handlePriorityChange = useCallback(() => {
+    setIconPriority((prev) => (prev + 1 <= 2 ? prev + 1 : 0));
+  }, []);
+
+  if (isLoading) {
+    return (
+      <Stack
+        alignItems="center"
+        justifyContent="center"
+        width="100%"
+        py={2}
+        mb={2}
+      >
+        <CircularProgress size={30} />
+      </Stack>
+    );
+  }
 
   return (
     <Stack
@@ -50,18 +91,18 @@ export const SkillTitle: FC<{
         borderRadius: theme.spacing(1),
       })}
     >
-      <IconButton
+      <ActionButton
         color="secondary"
         sx={{ borderRadius: 0.5, p: 0 }}
         onClick={() => navigate(-1)}
       >
         <ArrowBack />
-      </IconButton>
+      </ActionButton>
       {editMode ? (
         <TextField
           autoFocus
-          value={inputTitle}
-          onChange={handleTitleChange}
+          inputRef={ref}
+          defaultValue={inputTitle}
           placeholder={DEFAULT_TITLE}
           variant="standard"
           size="small"
@@ -73,12 +114,21 @@ export const SkillTitle: FC<{
           {inputTitle}
         </Typography>
       )}
-      <ActionButton onClick={toggleEditMode}>
+      {editMode && (
+        <ActionButton onClick={handlePriorityChange}>
+          <PriorityIcon priority={iconPriority} />
+        </ActionButton>
+      )}
+      <ActionButton onClick={toggleEditMode} disabled={!!isLoading}>
         {editMode ? <Done /> : <Edit />}
       </ActionButton>
-      <IconButton color="error" onClick={handleDeleteSkill}>
+      <ActionButton
+        color="error"
+        onClick={handleDeleteSkill}
+        disabled={!!isLoading}
+      >
         <Delete />
-      </IconButton>
+      </ActionButton>
     </Stack>
   );
 };

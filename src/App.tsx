@@ -2,7 +2,6 @@ import { Container, ThemeProvider } from "@mui/material";
 import { Route, Routes } from "react-router-dom";
 import { Header } from "./components/Header/Header";
 import { MainPage } from "./pages/main";
-// import { MainPage } from "./pages/main";
 import { SkillPage } from "./pages/skill";
 import theme from "./theme/theme";
 import { URL } from "./types/types";

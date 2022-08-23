@@ -33,7 +33,6 @@ export interface SkillData {
   id: string | number;
   title?: string;
   date?: string | number;
-  time: TimeVariants;
   priority?: PriorityTypes;
   steps: StepData[];
 }

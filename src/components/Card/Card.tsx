@@ -1,9 +1,4 @@
-import {
-  ArrowForward,
-  Dehaze,
-  KeyboardDoubleArrowDown,
-  KeyboardDoubleArrowUp,
-} from "@mui/icons-material";
+import { ArrowForward } from "@mui/icons-material";
 import {
   Card,
   CardContent,
@@ -19,19 +14,13 @@ import { Link as RouterLink, useNavigate } from "react-router-dom";
 import { mainDate } from "../../types/date-format";
 import { PriorityTypes, SkillData, TimeVariants } from "../../types/types";
 import { getTimeStyle } from "../../utils/style";
+import { NO_TITLE } from "../../utils/text";
+import { PriorityIcon } from "../Icons/Icons";
 import { ProgressBar } from "./ProgressBar/ProgressBar";
 
-interface CardMainProps extends SkillData {}
-
-const PriorityIcon: FC<{ priority: PriorityTypes }> = ({ priority }) => {
-  if (priority === PriorityTypes.high) {
-    return <KeyboardDoubleArrowUp color="warning" />;
-  }
-  if (priority === PriorityTypes.medium) {
-    return <Dehaze color="info" />;
-  }
-  return <KeyboardDoubleArrowDown color="success" />;
-};
+interface CardMainProps extends SkillData {
+  time: TimeVariants;
+}
 
 export const CardMainPage: FC<CardMainProps> = ({
   id,
@@ -39,7 +28,7 @@ export const CardMainPage: FC<CardMainProps> = ({
   time,
   date,
   priority = PriorityTypes.low,
-  steps,
+  steps = [],
 }) => {
   const navigate = useNavigate();
 
@@ -57,7 +46,7 @@ export const CardMainPage: FC<CardMainProps> = ({
             component={RouterLink}
             to={`${time}/${id}`}
           >
-            {title}
+            {title ?? NO_TITLE}
           </Link>
         }
         action={
@@ -65,6 +54,7 @@ export const CardMainPage: FC<CardMainProps> = ({
             onClick={() => navigate(`${time}/${id}`)}
             sx={(theme) => ({
               backgroundColor: getTimeStyle(time),
+              color: theme.palette.common.white,
               borderRadius: 0.5,
               p: 0.5,
               ml: 1,

@@ -1,30 +1,32 @@
-import { Button, List, Stack, Typography } from "@mui/material";
+import { Button, CircularProgress, Stack, Typography } from "@mui/material";
 import { FC, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { StepItem } from "../components/StepItem/StepItem";
 import { SkillTitle } from "../components/SkillTitle/SkillTitle";
 import { useParams } from "react-router-dom";
-import { useAppDispatch, useAppSelector } from "../redux/hooks";
 import { TimeVariants, URL } from "../types/types";
-import { actions } from "../redux/slices/skills";
+import { useGetSkillQuery } from "../services/skills";
+import { Steps } from "../components/Steps/Steps";
 
 export const SkillPage: FC = () => {
-  const { time, skillId } = useParams() as {
+  const { time, skillId: id } = useParams() as {
     time: TimeVariants;
     skillId: string;
   };
-  const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
-  const skillData = useAppSelector((state) =>
-    state.skills[time]?.find((it) => it.id === Number(skillId))
-  );
+  const { data: skillData, isLoading } = useGetSkillQuery({ id, time });
 
-  const onAddNewStep = useCallback(() => {
-    dispatch(actions.addStep({ time, id: Number(skillId) }));
-  }, [dispatch, time, skillId]);
+  const { title, priority = 0 } = skillData ?? {};
 
-  if (!skillData)
+  if (isLoading) {
+    return (
+      <Stack alignItems="center" pt={8}>
+        <CircularProgress size={40} />
+      </Stack>
+    );
+  }
+
+  if (!id)
     return (
       <Stack spacing={10}>
         <Typography variant="h1" component="p" textAlign="center">
@@ -44,39 +46,8 @@ export const SkillPage: FC = () => {
 
   return (
     <Stack spacing={2}>
-      <SkillTitle time={time} id={skillId} title={skillData.title} />
-      <List
-        sx={(theme) => ({
-          border: `2px solid ${theme.palette.info.light}`,
-          borderRadius: theme.spacing(1),
-          p: 3,
-        })}
-      >
-        {!skillData.steps.length ? (
-          <Typography>
-            There are no steps yet. Please add some learning steps!
-          </Typography>
-        ) : (
-          skillData.steps.map((step) => (
-            <StepItem
-              id={step.id}
-              key={step.title}
-              title={step.title}
-              date={step.date}
-              isDone={step.isDone}
-            />
-          ))
-        )}
-      </List>
-      <Button
-        variant="outlined"
-        color="secondary"
-        size="large"
-        sx={{ alignSelf: "center" }}
-        onClick={onAddNewStep}
-      >
-        Add new step
-      </Button>
+      <SkillTitle {...{ time, id, title, priority }} />
+      <Steps id={id} time={time} />
     </Stack>
   );
 };
