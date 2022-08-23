@@ -67,7 +67,13 @@ export const SkillTitle: FC<{
 
   if (isLoading) {
     return (
-      <Stack alignItems="center" justifyContent="center" width="100%">
+      <Stack
+        alignItems="center"
+        justifyContent="center"
+        width="100%"
+        py={2}
+        mb={2}
+      >
         <CircularProgress size={30} />
       </Stack>
     );

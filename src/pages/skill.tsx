@@ -1,17 +1,11 @@
-import {
-  Button,
-  CircularProgress,
-  List,
-  Stack,
-  Typography,
-} from "@mui/material";
-import { FC, useCallback, useState } from "react";
+import { Button, CircularProgress, Stack, Typography } from "@mui/material";
+import { FC, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { StepItem } from "../components/StepItem/StepItem";
 import { SkillTitle } from "../components/SkillTitle/SkillTitle";
 import { useParams } from "react-router-dom";
 import { TimeVariants, URL } from "../types/types";
 import { useGetSkillQuery } from "../services/skills";
+import { Steps } from "../components/Steps/Steps";
 
 export const SkillPage: FC = () => {
   const { time, skillId: id } = useParams() as {
@@ -20,19 +14,9 @@ export const SkillPage: FC = () => {
   };
   const navigate = useNavigate();
 
-  const [isAdding, setIsAdding] = useState(false);
-
   const { data: skillData, isLoading } = useGetSkillQuery({ id, time });
 
-  const { title, steps, priority = 0 } = skillData ?? {};
-
-  const onAddNewStep = useCallback(() => {
-    setIsAdding(true);
-  }, []);
-
-  const onSaveStep = useCallback(() => {
-    setIsAdding(false);
-  }, []);
+  const { title, priority = 0 } = skillData ?? {};
 
   if (isLoading) {
     return (
@@ -63,44 +47,7 @@ export const SkillPage: FC = () => {
   return (
     <Stack spacing={2}>
       <SkillTitle {...{ time, id, title, priority }} />
-      <List
-        sx={(theme) => ({
-          border: `2px solid ${theme.palette.info.light}`,
-          borderRadius: theme.spacing(1),
-          p: 3,
-        })}
-      >
-        {!steps?.length && !isAdding ? (
-          <Typography>
-            There are no steps yet. Please add some learning steps!
-          </Typography>
-        ) : (
-          steps?.map((step) => (
-            <StepItem
-              id={step.id}
-              key={step.id}
-              title={step.title}
-              date={step.date}
-              isDone={step.isDone}
-            />
-          ))
-        )}
-        {isAdding && (
-          <StepItem
-            id={+(Number(id ?? 0) + Math.random() * 1000).toFixed(0)}
-            onSave={onSaveStep}
-          />
-        )}
-      </List>
-      <Button
-        variant="outlined"
-        color="secondary"
-        size="large"
-        sx={{ alignSelf: "center" }}
-        onClick={onAddNewStep}
-      >
-        Add new step
-      </Button>
+      <Steps id={id} time={time} />
     </Stack>
   );
 };

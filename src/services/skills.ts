@@ -1,5 +1,5 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-import { SkillData, TimeVariants } from "../types/types";
+import { SkillData, StepData, TimeVariants } from "../types/types";
 
 type ResponseSkillData = Partial<
   Record<TimeVariants, Record<string, Omit<SkillData, "id">>>
@@ -16,7 +16,7 @@ export const skillsApi = createApi({
   baseQuery: fetchBaseQuery({
     baseUrl: "https://learning-app-c4963-default-rtdb.firebaseio.com/",
   }),
-  tagTypes: ["skills"],
+  tagTypes: ["skills", "steps"],
   endpoints: (builder) => ({
     getSkills: builder.query<MappedSkillData, void>({
       query: () => ({ url: "skills.json" }),
@@ -48,6 +48,7 @@ export const skillsApi = createApi({
         ];
       },
     }),
+    // SKILL
     getSkill: builder.query<SkillData, BaseApiProps>({
       query: ({ id, time }) => ({ url: `/skills/${time}/${id}.json` }),
       providesTags: (res, err, body) =>
@@ -79,6 +80,24 @@ export const skillsApi = createApi({
       }),
       invalidatesTags: [{ type: "skills", id: "list" }],
     }),
+    // STEPS
+    getSteps: builder.query<StepData[], BaseApiProps>({
+      query: ({ id, time }) => ({ url: `/skills/${time}/${id}/steps.json` }),
+      providesTags: (res, err, body) =>
+        body?.id ? [{ type: "steps", id: +body.id }] : [],
+    }),
+    updateSteps: builder.mutation<
+      StepData[],
+      BaseApiProps & { steps: StepData[] }
+    >({
+      query: ({ id, time, steps }) => ({
+        method: "PATCH",
+        url: `skills/${time}/${id}.json`,
+        body: { id, steps },
+      }),
+      invalidatesTags: (res, err, body) =>
+        body?.id ? [{ type: "steps", id: +body.id }] : [],
+    }),
   }),
 });
 
@@ -88,4 +107,6 @@ export const {
   useAddSkillMutation,
   useRemoveSkillMutation,
   useUpdateSkillMutation,
+  useGetStepsQuery,
+  useUpdateStepsMutation,
 } = skillsApi;

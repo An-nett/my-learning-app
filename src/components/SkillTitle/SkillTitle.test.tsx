@@ -1,4 +1,8 @@
-import { fireEvent, queryByTestId } from "@testing-library/react";
+import {
+  fireEvent,
+  queryByTestId,
+  waitForElementToBeRemoved,
+} from "@testing-library/react";
 import { rest } from "msw";
 import { setupServer } from "msw/node";
 import { MemoryRouter } from "react-router-dom";
@@ -14,11 +18,14 @@ const TEST_ID = 3;
 const skill = initialData[TEST_TIME].find((skill) => skill.id === TEST_ID)!;
 
 const CHANGED_TITLE = "New Skill Name";
-const CHANGED_PRIORITY = skill.priority! + 1;
 
 export const handlers = [
-  rest.patch(`skills/${TEST_TIME}/${TEST_ID}.json`, (req, res, ctx) =>
-    res(ctx.json({ title: CHANGED_TITLE, CHANGED_PRIORITY }), ctx.delay(200))
+  rest.patch(
+    "https://learning-app-c4963-default-rtdb.firebaseio.com/skills/:time/:skillId.json",
+    async (req, res, ctx) => {
+      const body = await req.json();
+      return res(ctx.json(body), ctx.delay(200));
+    }
   ),
 ];
 
@@ -83,7 +90,8 @@ describe("Skill Title", () => {
       fireEvent.click(doneButton!);
     });
 
-    await findByRole("progressbar");
-    await findByText(CHANGED_TITLE);
+    waitForElementToBeRemoved(() => findByRole("progressbar")).then(() =>
+      getByText(CHANGED_TITLE)
+    );
   });
 });

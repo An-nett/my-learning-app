@@ -2,7 +2,6 @@ import { Delete, Edit } from "@mui/icons-material";
 import {
   alpha,
   ButtonGroup,
-  CircularProgress,
   ListItem,
   Stack,
   TextField,
@@ -12,17 +11,15 @@ import moment from "moment";
 import { FC, useCallback, useEffect, useReducer, useState } from "react";
 import { useParams } from "react-router-dom";
 import {
-  useGetSkillQuery,
-  useUpdateSkillMutation,
-} from "../../services/skills";
-import { inputDate, mainDate } from "../../types/date-format";
-import { StepData, TimeVariants } from "../../types/types";
-import { STEP_PLACEHOLDER } from "../../utils/text";
-import { ActionButton, DoneButton } from "../Buttons/Buttons.styled";
+  useGetStepsQuery,
+  useUpdateStepsMutation,
+} from "../../../services/skills";
+import { inputDate, mainDate } from "../../../types/date-format";
+import { StepData, TimeVariants } from "../../../types/types";
+import { SAVING_CHANGES, STEP_PLACEHOLDER } from "../../../utils/text";
+import { ActionButton, DoneButton } from "../../Buttons/Buttons.styled";
 
-interface StepItemProps extends StepData {
-  onSave?: () => void;
-}
+interface StepItemProps extends StepData {}
 
 enum StepActionTypes {
   TITLE = "TITLE",
@@ -35,7 +32,7 @@ interface StepAction {
   payload: string | number | boolean;
 }
 
-function stepReducer(state: StepItemProps, action: StepAction) {
+function stepReducer(state: Omit<StepItemProps, "steps">, action: StepAction) {
   switch (action.type) {
     case StepActionTypes.TITLE:
       return { ...state, title: action.payload as string };
@@ -53,10 +50,19 @@ export const StepItem: FC<StepItemProps> = ({
   title,
   date,
   isDone = false,
-  onSave,
 }) => {
   const [hover, setHover] = useState(false);
   const [editMode, setEditMode] = useState(!title && !date);
+
+  const { time, skillId } = useParams() as {
+    time: TimeVariants;
+    skillId: string;
+  };
+
+  const { data: steps = [] } = useGetStepsQuery({
+    id: skillId,
+    time,
+  });
 
   const [stepState, changeStepState] = useReducer(stepReducer, {
     id,
@@ -65,21 +71,11 @@ export const StepItem: FC<StepItemProps> = ({
     isDone,
   });
 
-  const { time, skillId } = useParams() as {
-    time: TimeVariants;
-    skillId: string;
-  };
-
-  const { steps = [] } = useGetSkillQuery(
-    { id: skillId, time },
-    { selectFromResult: ({ data }) => data ?? { steps: [] } }
-  );
-
-  const [updateSkill, { isLoading, data }] = useUpdateSkillMutation();
+  const [updateSteps, { isLoading }] = useUpdateStepsMutation();
 
   useEffect(() => {
-    if (data?.steps) {
-      const step = data?.steps.find((step) => step.id === id);
+    if (steps) {
+      const step = steps.find((step) => step.id === id);
 
       step?.title &&
         changeStepState({ type: StepActionTypes.TITLE, payload: step.title });
@@ -91,7 +87,7 @@ export const StepItem: FC<StepItemProps> = ({
           payload: step.isDone,
         });
     }
-  }, [data?.steps, id]);
+  }, [steps, id]);
 
   const toggleEditMode = useCallback(() => {
     setEditMode((prevMode) => !prevMode);
@@ -108,7 +104,7 @@ export const StepItem: FC<StepItemProps> = ({
     setEditMode(false);
     setHover(false);
 
-    updateSkill({
+    updateSteps({
       id: skillId,
       time,
       steps: [
@@ -116,15 +112,13 @@ export const StepItem: FC<StepItemProps> = ({
         { ...stepState, isDone: true },
       ],
     });
-
-    onSave?.();
-  }, [skillId, stepState, time, steps, updateSkill, id, onSave]);
+  }, [skillId, stepState, time, steps, updateSteps, id]);
 
   const handleNotDoneClick = useCallback(() => {
     setEditMode(false);
     setHover(false);
 
-    updateSkill({
+    updateSteps({
       id: skillId,
       time,
       steps: [
@@ -132,9 +126,7 @@ export const StepItem: FC<StepItemProps> = ({
         { ...stepState, isDone: false },
       ],
     });
-
-    onSave?.();
-  }, [skillId, stepState, time, steps, updateSkill, id, onSave]);
+  }, [skillId, stepState, time, steps, updateSteps, id]);
 
   const handleTitleChange = useCallback((e: React.BaseSyntheticEvent) => {
     changeStepState({ type: StepActionTypes.TITLE, payload: e.target.value });
@@ -144,21 +136,23 @@ export const StepItem: FC<StepItemProps> = ({
   }, []);
 
   const handleDeleteStep = useCallback(() => {
-    updateSkill({
+    updateSteps({
       id: skillId,
       time,
       steps: steps.filter((step) => step.id !== id),
     });
-  }, [time, skillId, id, steps, updateSkill]);
+  }, [time, skillId, id, steps, updateSteps]);
 
   if (isLoading) {
     return (
-      <ListItem sx={{ p: 0, py: 3, "&:not(:last-child)": { mb: 2 } }}>
-        <Stack justifyContent="center" alignItems="center" width="100%">
-          <CircularProgress size={30} />
-        </Stack>
+      <ListItem sx={{ px: 2, py: 3, "&:not(:last-child)": { mb: 2 } }}>
+        <Typography>{SAVING_CHANGES}</Typography>
       </ListItem>
     );
+  }
+
+  if (!steps?.find((step) => step.id === id)) {
+    return null;
   }
 
   return (
