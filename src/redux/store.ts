@@ -4,10 +4,12 @@ import {
   combineReducers,
 } from "@reduxjs/toolkit";
 import { skillsApi } from "../services/skills";
+import auth from "./slices/auth";
 import skills from "./slices/skills";
 
 const rootReducer = combineReducers({
   skills: skills.reducer,
+  auth: auth.reducer,
   [skillsApi.reducerPath]: skillsApi.reducer,
 });
 

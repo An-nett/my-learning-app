@@ -62,3 +62,7 @@ export const AddButton = styled(IconButton)<ButtonProps>(({ theme, time }) => ({
     color: getTimeStyle(time, false),
   },
 }));
+
+export const CloseButton = styled(IconButton)(({ theme }) => ({
+  borderRadius: theme.spacing(0.5),
+}));

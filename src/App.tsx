@@ -1,6 +1,7 @@
 import { Container, ThemeProvider } from "@mui/material";
 import { Route, Routes } from "react-router-dom";
 import { Header } from "./components/Header/Header";
+import { ModalLogin } from "./components/Modal/Modal";
 import { MainPage } from "./pages/main";
 import { SkillPage } from "./pages/skill";
 import theme from "./theme/theme";
@@ -16,6 +17,7 @@ function App() {
           <Route path={URL.SKILL} element={<SkillPage />} />
         </Routes>
       </Container>
+      <ModalLogin />
     </ThemeProvider>
   );
 }

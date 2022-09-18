@@ -1,5 +1,5 @@
 import { Button, CircularProgress, Stack, Typography } from "@mui/material";
-import { FC, useCallback } from "react";
+import { FC } from "react";
 import { useNavigate } from "react-router-dom";
 import { SkillTitle } from "../components/SkillTitle/SkillTitle";
 import { useParams } from "react-router-dom";
