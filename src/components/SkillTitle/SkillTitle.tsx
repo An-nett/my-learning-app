@@ -13,7 +13,7 @@ import {
   useUpdateSkillMutation,
 } from "../../services/skills";
 import { PriorityTypes, TimeVariants, URL } from "../../types/types";
-import { DEFAULT_TITLE, SAVING_CHANGES } from "../../utils/text";
+import { DEFAULT_TITLE } from "../../utils/text";
 import { ActionButton } from "../Buttons/Buttons.styled";
 import { PriorityIcon } from "../Icons/Icons";
 
